@@ -1,0 +1,12 @@
+#ttt {
+   border: 1px solid #999;
+   border-radius: 4px;
+   box-shadow: 0 0 20px rgba(0,0,0,0.5);
+   color: #222;
+   font-family: UN-Abhaya,KaputaUnicode,"Noto Sans Sinhala",Tipitaka_Sinhala1,"Iskoola Pota";
+   font-size: 14px;
+   line-height: normal;
+   padding: 9px;
+   position: absolute;
+   width: 300px;
+}
