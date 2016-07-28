@@ -5,16 +5,18 @@
    "permissions": [
        "activeTab"
    ],
+   "web_accessible_resources": [
+      "data/*"
+   ],
+   "content_scripts": [
+      {
+         "matches": ["http://www.tipitaka.org/*"],
+         "css": ["styles.css"]
+      },
    "background":{
       "scripts": ["background.js"],
        "persistent": false
    },
-   "content_scripts": [
-      {
-         "matches": ["http://www.tipitaka.org/*"],
-         "css": ["ttt.css"]
-      }
-   ],
    "browser_action": {
       "default_icon": "icon.png",
       "default_title": "on/off"
