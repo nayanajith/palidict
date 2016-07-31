@@ -1,5 +1,5 @@
 {
-   "name": "Pali-Sinhala Dictionary",
+   "name": "Pali-Sinhala tooltip dictionary",
    "description": "Pali-Sinhala Dictionary tooltip",
    "version": "0.1",
    "permissions": [
@@ -12,14 +12,14 @@
       {
          "matches": ["http://www.tipitaka.org/*"],
          "css": ["styles.css"]
-      },
+      }],
    "background":{
       "scripts": ["background.js"],
        "persistent": false
    },
    "browser_action": {
       "default_icon": "icon.png",
-      "default_title": "on/off"
+      "default_title": "Sinhala Tooltip ON"
    },
 
    "manifest_version": 2

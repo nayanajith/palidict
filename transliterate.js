@@ -1,34 +1,36 @@
 console.log("Started..");
-var dicts=[];
-function callback(resp){
+var urls=['/data/buddhadatta_data.json','/data/sumangala_data.json','/data/tummodic.json','/data/yuttadhammo_ped.json']
+var dicts= new Array();
+function callback(resp,i){
    dicts.push(resp);
-   console.log(">>"+dicts.length);
+   i++;
+   if(i<urls.length){
+      loadData(i);
+   }
 }
 
 //'http://pitaka.lk/dict/data/buddhadatta_data.json';
-var urls=['/data/buddhadatta_data.json']
-for(var i in urls){
+function loadData(i){
    var url=urls[i];
-   console.log(url);
    var xhr = new XMLHttpRequest();
-   xhr.open("GET", chrome.extension.getURL(url), true);
+   xhr.open("GET",chrome.extension.getURL(url),true);
    xhr.responseType = "json";
    xhr.onreadystatechange=function(){
-      if (xhr.readyState==4 || xhr.readyState=="complete"){
+      if (xhr.readyState==4 || xhr.readyState==200){
          var status = xhr.status;
          if (status == 200) {
-            callback(xhr.response);
+            callback(xhr.response,i);
          } else {
             console.log("XHR:"+status);
          }
       }
    }
-   xhr.send();
+   xhr.send(null);
 }
 
+loadData(0);
 
 var frame=window;
-
 if(document.location.origin=="http://www.tipitaka.org"){
    var frame=window.frames['text'];
 }
@@ -39,7 +41,7 @@ function gst(){
    var xOffset=Math.max(frame.document.documentElement.scrollLeft,frame.document.body.scrollLeft);
    var yOffset=Math.max(frame.document.documentElement.scrollTop,frame.document.body.scrollTop);
    x=x+xOffset;
-   y=y+yOffset;
+   y=y+10+yOffset;
 
 	var text = "";
 	if (frame.getSelection) {
@@ -67,15 +69,17 @@ function gst(){
 		d.style.padding="9px";
 		d.style.boxShadow="0 0 20px rgba(0,0,0,0.5)";
 
-  		d.style.fontFamily='UN-Abhaya,KaputaUnicode,"Noto Sans Sinhala",Tipitaka_Sinhala1,"Iskoola Pota"';
+  		d.style.fontFamily='UN-Abhaya,KaputaUnicode,"Noto Sans Sinhala",Tipitaka_Sinhala1,"Iskoola Pota","URW Palladio ITU", "DejaVu Serif", "Times New Roman", serif';
 		d.innerHTML=text;
 
       var defAll='';
 
       for(var k in dicts){
+         console.log(k);
          dict=dicts[k];
          //reduce from end
          var word=text;
+         var right;
          var def='';
          while(word.length > 0){
             for(var i in dict){
@@ -95,12 +99,15 @@ function gst(){
             }
          }
          if(def != ''){
-            defAll+=k+". ["+word+"] "+def+"<br>";
+            defAll+=k+". ["+word+" ⇠]"+def+"<br>";
          }
 
          //reduce from start
-         word = text.substring(1,text.length);
          def='';
+         var r = RegExp(word);
+         right = text.replace(r,"");
+         word  = right;
+
          while(word.length > 0){
             for(var i in dict){
                if(word==dict[i][0]){
@@ -119,13 +126,31 @@ function gst(){
             }
          }
          if(def != ''){
-            defAll+=k+". ["+word+"] "+def+"<br>";
+            defAll+=k+". [⇢ "+word+"] "+def+"<br>";
+         }
+
+         //center from start
+         def='';
+         var r = RegExp(word);
+         word = right.replace(r,"");
+         for(var i in dict){
+            if(word==dict[i][0]){
+               if(def != ''){
+                  def+=";"+dict[i][1];
+               }else{
+                  def+=dict[i][1];
+               }
+            }
+         }
+
+         if(def != ''){
+            defAll+=k+". [⇢ "+word+" ⇠] "+def+"<br>";
          }
       }
 
-      d.innerHTML=text+"<hr>"+defAll;
+      d.innerHTML="<div width='100%' style='border-bottom:1px solid silver'>"+text+"</div>"+defAll;
       frame.document.getElementsByTagName('body')[0].appendChild(d);
-	}
+   }
 }
 
 body=frame.document.getElementsByTagName('body')[0]
