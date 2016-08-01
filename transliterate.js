@@ -1,9 +1,9 @@
 console.log("Started..");
 var dicts={
-   buddhadatta:['si','si','/data/buddhadatta_data.json'],
-   sumangala:['si','si','/data/sumangala_data.json'],
+//   buddhadatta:['si','si','/data/buddhadatta_data.json'],
+//   sumangala:['si','si','/data/sumangala_data.json'],
    tummodic:['en','en','/data/tummodic.json'],
-   yuttadhammo:['en','en','/data/yuttadhammo_ped.json']
+//   yuttadhammo:['en','en','/data/yuttadhammo_ped.json']
 }
 var dataArr=[];
 for(var key in dicts){
@@ -19,7 +19,6 @@ function callback(resp,ele){
    }
 }
 
-//'http://pitaka.lk/dict/data/buddhadatta_data.json';
 function loadData(ele){
    var url=dicts[ele][2];
    var xhr = new XMLHttpRequest();
@@ -41,6 +40,8 @@ function loadData(ele){
 loadData(dataArr[0]);
 
 var frame=window;
+
+//www.tipitaka.org has frames 
 if(document.location.origin=="http://www.tipitaka.org"){
    var frame=window.frames['text'];
 }
@@ -185,6 +186,7 @@ function translit(text){
 }
 
 function gst(){
+   //Calculate top,left
 	var x = frame.event.clientX;     // Get the horizontal coordinate
 	var y = frame.event.clientY;     // Get the vertical coordinate
    var xOffset=Math.max(frame.document.documentElement.scrollLeft,frame.document.body.scrollLeft);
@@ -199,13 +201,18 @@ function gst(){
 		text = frame.document.selection.createRange().text;
 	}
 
+   //Remove popup tooltip element
 	var pd=frame.document.getElementById('ttt');
-	if(pd)
+	if(pd){
 		pd.remove();
+   }
 
-   text=text.toLowerCase();
+   //If selection is text
 	if(text){
-		//console.log(x+","+y+":"+text);
+      //All text read as lower case
+      text=text.toLowerCase();
+
+      //Drow the tooltip element and style it
 		var d = frame.document.createElement('div');
 		d.id='ttt';
 		d.style.position = "absolute";
@@ -220,15 +227,19 @@ function gst(){
 		d.style.boxShadow="0 0 20px rgba(0,0,0,0.5)";
 		d.innerHTML=text;
 
-      var defHtml ='';
-      var defAll  ='';
+      //Transliterate the word si<->en
       var textTr  =translit(text);
 
+      var defHtml ='';
+      var defAll  ='';
+
+      //Finding the words from the dictionaries
       for(var k in dicts){
          dict=dicts[k][2];
          var word=text;
          console.log(dicts[k][1]);
 
+         //If word is sinhala, transliteration will be english
          if(sin){
             if(dicts[k][1]=='en'){
                word=textTr;
@@ -239,12 +250,10 @@ function gst(){
             }
          }
 
-         console.log(word);
-
          var right;
          var def='';
 
-         //reduce from end
+         //Identify the starting sub-word - reduce the word from right to left <--
          while(word.length > 0){
             for(var i in dict){
                if(word==dict[i][0]){
@@ -266,7 +275,7 @@ function gst(){
             defAll+="["+word+" ⇠]"+def+"<br>";
          }
 
-         //reduce from start
+         //Identify the ending sub-word - reduce from left to right -->
          def='';
          var r = RegExp(word);
          right = text.replace(r,"");
@@ -293,7 +302,7 @@ function gst(){
             defAll+="[⇢ "+word+"] "+def+"<br>";
          }
 
-         //center from start
+         //identify the middle word - remove starting sub-word and ending sub-word from the word
          def='';
          var r = RegExp(word);
          word = right.replace(r,"");
@@ -311,9 +320,9 @@ function gst(){
             defAll+="[⇢ "+word+" ⇠] "+def+"<br>";
          }
 
-         //Collapse string to 200 chars
+         //Resize the font when the meaning has more than 200 chars
          if(defAll.length > 200){
-            defAll='<font size=\'1.5\'>'+defAll+'</font>';
+            defAll='<font size=\'2\'>'+defAll+'</font>';
          }
 
          if(dicts[k][1]=='en'){
