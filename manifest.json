@@ -1,9 +1,11 @@
 {
-   "name": "Pali-Sinhala tooltip dictionary",
-   "description": "Pali-Sinhala Dictionary tooltip",
-   "version": "0.1",
+   "name"         : "Pali-Sinhala tooltip dictionary",
+   "description"  : "Pali-Sinhala Dictionary tooltip",
+   "options_page" : "options.html",
+   "version"      : "0.1",
    "permissions": [
-       "activeTab"
+      "activeTab",
+      "storage"
    ],
    "web_accessible_resources": [
       "data/*"
@@ -12,14 +14,15 @@
       {
          "matches": ["http://www.tipitaka.org/*"],
          "css": ["styles.css"]
-      }],
+      }
+   ],
    "background":{
       "scripts": ["background.js"],
-       "persistent": false
+      "persistent": false
    },
    "browser_action": {
       "default_icon": "icon.png",
-      "default_title": "Sinhala Tooltip ON"
+      "default_title": "Pali Dictionary ON"
    },
 
    "manifest_version": 2

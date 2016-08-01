@@ -1,9 +1,9 @@
 console.log("Started..");
 var dicts={
-//   buddhadatta:['si','si','/data/buddhadatta_data.json'],
-//   sumangala:['si','si','/data/sumangala_data.json'],
-   tummodic:['en','en','/data/tummodic.json'],
-//   yuttadhammo:['en','en','/data/yuttadhammo_ped.json']
+   buddhadatta:['si','si','/data/buddhadatta_data.json'],
+   sumangala:['si','si','/data/sumangala_data.json'],
+   tummo:['en','en','/data/tummodic.json'],
+   yuttadhammo:['en','en','/data/yuttadhammo_ped.json']
 }
 var dataArr=[];
 for(var key in dicts){
@@ -19,6 +19,7 @@ function callback(resp,ele){
    }
 }
 
+//ajax load data 
 function loadData(ele){
    var url=dicts[ele][2];
    var xhr = new XMLHttpRequest();
@@ -26,8 +27,7 @@ function loadData(ele){
    xhr.responseType = "json";
    xhr.onreadystatechange=function(){
       if (xhr.readyState==4 || xhr.readyState==200){
-         var status = xhr.status;
-         if (status == 200) {
+         if (xhr.status == 200) {
             callback(xhr.response,ele);
          } else {
             console.log("XHR:"+status);
@@ -37,11 +37,12 @@ function loadData(ele){
    xhr.send(null);
 }
 
+//load all data files recursively
 loadData(dataArr[0]);
 
-var frame=window;
 
 //www.tipitaka.org has frames 
+var frame=window;
 if(document.location.origin=="http://www.tipitaka.org"){
    var frame=window.frames['text'];
 }
@@ -133,8 +134,6 @@ function translit(text){
           break;
        }
     }
-
-    console.log(sin);
 
     if(sin){ //sin->en
        for(var v in vowelsRom){
@@ -237,7 +236,6 @@ function gst(){
       for(var k in dicts){
          dict=dicts[k][2];
          var word=text;
-         console.log(dicts[k][1]);
 
          //If word is sinhala, transliteration will be english
          if(sin){
@@ -326,9 +324,9 @@ function gst(){
          }
 
          if(dicts[k][1]=='en'){
-            defHtml+='<div title='+k+' id="tra" style="border-left:2px solid #AED6F1;margin-bottom:2px;font-family=\'\"URW Palladio ITU\", "DejaVu Serif\", \"Times New Roman\", serif\'>'+defAll+'</div>';
+            defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #AED6F1;margin-bottom:2px;font-family=\'\"URW Palladio ITU\", "DejaVu Serif\", \"Times New Roman\", serif\'>'+defAll+'</div>';
          }else{
-            defHtml+='<div title='+k+' id="tra" style="border-left:2px solid #ABEBC6;font-family=\'UN-Abhaya,KaputaUnicode,\"Noto Sans Sinhala\",Tipitaka_Sinhala1,\"Iskoola Pota\"\'>'+defAll+'</div>';
+            defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #ABEBC6;font-family=\'UN-Abhaya,KaputaUnicode,\"Noto Sans Sinhala\",Tipitaka_Sinhala1,\"Iskoola Pota\"\'>'+defAll+'</div>';
          }
          defAll='';
       }
