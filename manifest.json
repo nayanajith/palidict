@@ -8,11 +8,12 @@
       "storage"
    ],
    "web_accessible_resources": [
-      "data/*"
+      "data/*",
+      "styles.html"
    ],
    "content_scripts": [
       {
-         "matches": ["http://www.tipitaka.org/*"],
+         "matches": ["http://*"],
          "css": ["styles.css"]
       }
    ],

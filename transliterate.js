@@ -1,18 +1,48 @@
 console.log("Started..");
-var dicts={
-   buddhadatta:['si','si','/data/buddhadatta_data.json'],
-   sumangala:['si','si','/data/sumangala_data.json'],
-   tummo:['en','en','/data/tummodic.json'],
-   yuttadhammo:['en','en','/data/yuttadhammo_ped.json']
+
+var dictsObj={
+	pbps:	["si","si",'/data/buddhadatta_data.json'],
+	msps:	["si","si",'/data/sumangala_data.json'],
+	tppe:	["en","en",'/data/tummodic.json'],
+	pe:	["en","en",'/data/yuttadhammo_ped.json']
 }
+
+function getOptions(dicts){
+   for(var d in dicts){
+      //if(typeof dictsObj[d] != undefined){delete dictsObj[d]};
+      delete dictsObj[d];
+      if(dicts[d][0]){
+         var arr=[dicts[d][1],dicts[d][2],dicts[d][3]];
+         dictsObj[d]=arr;
+      }
+   }
+}
+
+//Read the stored options
+chrome.storage.sync.get({
+   dicts: dictsObj
+}, function(items) {
+   if(items.dicts){
+      getOptions(items.dicts);
+   }
+});
+
+
+//throw new Error("Something went badly wrong!");
 var dataArr=[];
-for(var key in dicts){
-   dataArr.push(key);
+for(var key in dictsObj){
+   if(typeof dictsObj[key]!= undefined ){
+      dataArr.push(key);
+   }
 }
+
+console.log(dataArr);
 
 var i=0;
 function callback(resp,ele){
-   dicts[ele][2]=resp;
+	if(dictsObj[ele]){
+		dictsObj[ele][2]=resp;
+	}
    i++;
    if(i<dataArr.length){
       loadData(dataArr[i]);
@@ -21,7 +51,7 @@ function callback(resp,ele){
 
 //ajax load data 
 function loadData(ele){
-   var url=dicts[ele][2];
+   var url=dictsObj[ele][2];
    var xhr = new XMLHttpRequest();
    xhr.open("GET",chrome.extension.getURL(url),true);
    xhr.responseType = "json";
@@ -184,6 +214,27 @@ function translit(text){
     return text;
 }
 
+//Load style
+/*
+var style;
+function setStyle(style_str){
+	style=style_str;
+}
+
+var xhr = new XMLHttpRequest();
+xhr.open("GET",chrome.extension.getURL('/styles.html'),true);
+xhr.onreadystatechange=function(){
+	if (xhr.readyState==4 || xhr.readyState==200){
+		if (xhr.status == 200) {
+			setStyle(xhr.response);
+		} else {
+			console.log("XHR:"+status);
+		}
+	}
+}
+xhr.send(null);
+*/
+
 function gst(){
    //Calculate top,left
 	var x = frame.event.clientX;     // Get the horizontal coordinate
@@ -210,10 +261,15 @@ function gst(){
 	if(text){
       //All text read as lower case
       text=text.toLowerCase();
+      text=text.split(" ")[0];
 
       //Drow the tooltip element and style it
 		var d = frame.document.createElement('div');
 		d.id='ttt';
+
+
+
+		/*
 		d.style.position = "absolute";
 		d.style.left = x+'px';
 		d.style.top = y+'px';
@@ -224,6 +280,7 @@ function gst(){
 		d.style.borderRadius="4px";
 		d.style.padding="9px";
 		d.style.boxShadow="0 0 20px rgba(0,0,0,0.5)";
+		*/
 		d.innerHTML=text;
 
       //Transliterate the word si<->en
@@ -233,17 +290,17 @@ function gst(){
       var defAll  ='';
 
       //Finding the words from the dictionaries
-      for(var k in dicts){
-         dict=dicts[k][2];
+      for(var k in dictsObj){
+         dict=dictsObj[k][2];
          var word=text;
 
          //If word is sinhala, transliteration will be english
          if(sin){
-            if(dicts[k][1]=='en'){
+            if(dictsObj[k][1]=='en'){
                word=textTr;
             }
          }else{
-            if(dicts[k][1]=='si'){
+            if(dictsObj[k][1]=='si'){
                word=textTr;
             }
          }
@@ -323,7 +380,7 @@ function gst(){
             defAll='<font size=\'2\'>'+defAll+'</font>';
          }
 
-         if(dicts[k][1]=='en'){
+         if(dictsObj[k][1]=='en'){
             defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #AED6F1;margin-bottom:2px;font-family=\'\"URW Palladio ITU\", "DejaVu Serif\", \"Times New Roman\", serif\'>'+defAll+'</div>';
          }else{
             defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #ABEBC6;font-family=\'UN-Abhaya,KaputaUnicode,\"Noto Sans Sinhala\",Tipitaka_Sinhala1,\"Iskoola Pota\"\'>'+defAll+'</div>';
