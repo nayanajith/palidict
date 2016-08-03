@@ -8,13 +8,19 @@
       "storage"
    ],
    "web_accessible_resources": [
-      "data/*",
-      "styles.html"
+      "data/*"
    ],
    "content_scripts": [
       {
-         "matches": ["http://*"],
-         "css": ["styles.css"]
+         "matches": ["http://*/*"],
+         "css": ["styles.css"],
+         "run_at":"document_start",
+         "all_frames": true
+      },{
+         "matches": ["https://*/*"],
+         "css": ["styles.css"],
+         "run_at":"document_start",
+         "all_frames": true
       }
    ],
    "background":{

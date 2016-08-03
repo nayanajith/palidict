@@ -3,8 +3,10 @@ console.log("Started..");
 var dictsObj={
 	pbps:	["si","si",'/data/buddhadatta_data.json'],
 	msps:	["si","si",'/data/sumangala_data.json'],
-	tppe:	["en","en",'/data/tummodic.json'],
-	pe:	["en","en",'/data/yuttadhammo_ped.json']
+	tpe:	["en","en",'/data/tummodic.json'],
+	ype:	["en","en",'/data/yuttadhammo_ped.json'],
+	ycpe:	["en","en","/data/yuttadhammo_cped_v.json"],
+	yppn:	["en","en","/data/yuttadhammo_dppn_v.json"]
 }
 
 function getOptions(dicts){
@@ -12,7 +14,7 @@ function getOptions(dicts){
       //if(typeof dictsObj[d] != undefined){delete dictsObj[d]};
       delete dictsObj[d];
       if(dicts[d][0]){
-         var arr=[dicts[d][1],dicts[d][2],dicts[d][3]];
+         var arr=[dicts[d][1],dicts[d][2],dicts[d][3],dicts[d][4]];
          dictsObj[d]=arr;
       }
    }
@@ -100,7 +102,7 @@ function translit(text){
     vowelsSin.push('ඓ');    vowelsRom.push('ai');   vowelsSinMod.push('ෛ');
     vowelsSin.push('සෘ');   vowelsRom.push('ru');    vowelsSinMod.push('ෘ'); 
     vowelsSin.push('සෲ');   vowelsRom.push('rū');    vowelsSinMod.push('ෲ');
-    vowelsSin.push('අං');    vowelsRom.push('ṃ');    vowelsSinMod.push('ං');
+//    vowelsSin.push('අං');    vowelsRom.push('ṃ');    vowelsSinMod.push('ං');
     
 
     vowelsSin.push('');    vowelsRom.push('');    vowelsSinMod.push('්');
@@ -214,27 +216,6 @@ function translit(text){
     return text;
 }
 
-//Load style
-/*
-var style;
-function setStyle(style_str){
-	style=style_str;
-}
-
-var xhr = new XMLHttpRequest();
-xhr.open("GET",chrome.extension.getURL('/styles.html'),true);
-xhr.onreadystatechange=function(){
-	if (xhr.readyState==4 || xhr.readyState==200){
-		if (xhr.status == 200) {
-			setStyle(xhr.response);
-		} else {
-			console.log("XHR:"+status);
-		}
-	}
-}
-xhr.send(null);
-*/
-
 function gst(){
    //Calculate top,left
 	var x = frame.event.clientX;     // Get the horizontal coordinate
@@ -266,23 +247,10 @@ function gst(){
       //Drow the tooltip element and style it
 		var d = frame.document.createElement('div');
 		d.id='ttt';
-
-
-
-		/*
-		d.style.position = "absolute";
 		d.style.left = x+'px';
 		d.style.top = y+'px';
-		d.style.width='400px';
-		d.style.minHeight='100px';
-		d.style.border="1px solid #999";
-		d.style.background="#ffd";
-		d.style.borderRadius="4px";
-		d.style.padding="9px";
-		d.style.boxShadow="0 0 20px rgba(0,0,0,0.5)";
-		*/
-		d.innerHTML=text;
-
+		d.style.position = 'absolute';
+		
       //Transliterate the word si<->en
       var textTr  =translit(text);
 
@@ -291,6 +259,7 @@ function gst(){
 
       //Finding the words from the dictionaries
       for(var k in dictsObj){
+         var dict_name=dictsObj[k][3];
          dict=dictsObj[k][2];
          var word=text;
 
@@ -380,15 +349,17 @@ function gst(){
             defAll='<font size=\'2\'>'+defAll+'</font>';
          }
 
-         if(dictsObj[k][1]=='en'){
-            defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #AED6F1;margin-bottom:2px;font-family=\'\"URW Palladio ITU\", "DejaVu Serif\", \"Times New Roman\", serif\'>'+defAll+'</div>';
-         }else{
-            defHtml+='<div title='+k+' id="tra" style="overflow-y: auto;max-height:100px;border-left:2px solid #ABEBC6;font-family=\'UN-Abhaya,KaputaUnicode,\"Noto Sans Sinhala\",Tipitaka_Sinhala1,\"Iskoola Pota\"\'>'+defAll+'</div>';
-         }
+			if(defAll!=''){
+				if(dictsObj[k][1]=='en'){
+					defHtml+='<div title="'+dict_name+'" class="tra_en" >'+defAll+'</div>';
+				}else{
+					defHtml+='<div title="'+dict_name+'" class="tra_si" >'+defAll+'</div>';
+				}
+			}
          defAll='';
       }
 
-      d.innerHTML="<div width='100%' style='border-bottom:1px solid silver'>"+text+"</div>"+defHtml;
+      d.innerHTML="<div width='100%' class='tra_word'>"+text+"⇠⇢"+textTr+"</div>"+defHtml;
       frame.document.getElementsByTagName('body')[0].appendChild(d);
    }
 }

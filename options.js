@@ -2,11 +2,12 @@
 var dictsObj={
 	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
 	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
-	tppe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
-	cpe:	[false,"en","en","","Concise (EN)Pali-English"],
-	dppn:	[false,"en","en","","Dictionary of (EN)Pali Proper Names"],
-	pe:	[true,"en","en",'/data/yuttadhammo_ped.json',"(EN)Pali-English"]
+	tpe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
+	ype:	[true,"en","en",'/data/yuttadhammo_ped.json',"Yuttadhammo (EN)Pali-English"],
+	ycpe:	[true,"en","en","/data/yuttadhammo_cped_v.json","Yuttadhammo Concise (EN)Pali-English"],
+	yppn:	[true,"en","en","/data/yuttadhammo_dppn_v.json","Yuttadhammo Dictionary of (EN)Pali Proper Names"]
 }
+  
 
 function save_options() {
 	var color = 'red';
@@ -14,8 +15,7 @@ function save_options() {
 		dictsObj[d][0] = document.getElementById(d).checked;
 	}
 	chrome.storage.sync.set({
-		dicts: dictsObj,
-		color: color 
+		dicts: dictsObj
 	}, function() {
 		// Update status to let user know options were saved.
 		var status = document.getElementById('status');
@@ -29,10 +29,8 @@ function save_options() {
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 function restore_options() {
-	// Use default value color = 'red' and likesColor = true.
 	chrome.storage.sync.get({
-		dicts: dictsObj,
-		color: 'red' 
+		dicts: dictsObj
 	}, function(items) {
 		var innerHtml='<legend>Select dictionaries</legend>';
 		for(var d in items.dicts){
