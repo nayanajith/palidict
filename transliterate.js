@@ -216,6 +216,35 @@ function translit(text){
     return text;
 }
 
+function popup(){
+	alert('popup');
+}
+
+var menu = frame.document.createElement('div');
+menu.style.position = 'absolute';
+menu.style.left = '2px';
+menu.style.top = '2px';
+
+//ajax load data 
+function loadPopup(ele){
+   var url=dictsObj[ele][2];
+   var xhr = new XMLHttpRequest();
+   xhr.open("GET",chrome.extension.getURL('/popup.html'),true);
+   xhr.responseType = "html";
+   xhr.onreadystatechange=function(){
+      if (xhr.readyState==4 || xhr.readyState==200){
+         if (xhr.status == 200) {
+            menu.innerHTML=xhr.response;
+         } else {
+            console.log("XHR:"+status);
+         }
+      }
+   }
+   xhr.send(null);
+}
+
+frame.document.getElementsByTagName('body')[0].appendChild(menu);
+
 function gst(){
    //Calculate top,left
 	var x = frame.event.clientX;     // Get the horizontal coordinate
