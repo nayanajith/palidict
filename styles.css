@@ -8,6 +8,14 @@
    color:#874d08;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
+.popup{
+   border: 1px solid #999;
+   background: #ffd;
+   border-radius:4px;
+   padding: 9px;
+   color:#874d08;
+   box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
 #menu{
    border: 1px solid #999;
    background: #ffd;
@@ -47,9 +55,4 @@
 .tra_word{
    border-bottom:1px solid silver;
    font-weight: bold;
-}
-.popup{
-   background: #ffd;
-   padding: 9px;
-   color:#874d08;
 }

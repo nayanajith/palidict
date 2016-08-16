@@ -1,3 +1,4 @@
+alert('dddddddddd');
 /*
 chrome.tabs.executeScript('startStop', {
    "file": "transliterate.js"

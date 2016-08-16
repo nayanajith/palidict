@@ -212,46 +212,28 @@ function translit(text){
           text=text.replace(r,vowelsSin[v]);
        }
     }
-
-    return text;
+	 return text;
 }
-
-function popup(){
-	alert('popup');
-}
-
-var menu = frame.document.createElement('div');
-menu.style.position = 'absolute';
-menu.style.left = '2px';
-menu.style.top = '2px';
-
-//ajax load data 
-function loadPopup(ele){
-   var url=dictsObj[ele][2];
-   var xhr = new XMLHttpRequest();
-   xhr.open("GET",chrome.extension.getURL('/popup.html'),true);
-   xhr.responseType = "html";
-   xhr.onreadystatechange=function(){
-      if (xhr.readyState==4 || xhr.readyState==200){
-         if (xhr.status == 200) {
-            menu.innerHTML=xhr.response;
-         } else {
-            console.log("XHR:"+status);
-         }
-      }
-   }
-   xhr.send(null);
-}
-
-frame.document.getElementsByTagName('body')[0].appendChild(menu);
 
 function gst(){
+	var ttWidth=500;
+	var ttHeight=100;
    //Calculate top,left
 	var x = frame.event.clientX;     // Get the horizontal coordinate
 	var y = frame.event.clientY;     // Get the vertical coordinate
+	var iw=frame.innerWidth;			// Width of the window
+	var ih=frame.innerHeight;			// Height of the window
    var xOffset=Math.max(frame.document.documentElement.scrollLeft,frame.document.body.scrollLeft);
    var yOffset=Math.max(frame.document.documentElement.scrollTop,frame.document.body.scrollTop);
+
    x=x+xOffset;
+
+	//Window right edge fix
+	if((iw-x)<ttWidth){
+		x=iw-ttWidth-40;
+	}
+
+	console.log(x);
    y=y+10+yOffset;
 
 	var text = "";
@@ -277,7 +259,14 @@ function gst(){
 		var d = frame.document.createElement('div');
 		d.id='ttt';
 		d.style.left = x+'px';
-		d.style.top = y+'px';
+
+		//Window bottom edge fix
+		if((ih-y)<ttHeight){
+			d.style.bottom = (ih-y+30)+'px';
+		}else{
+			d.style.top = y+'px';
+		}
+
 		d.style.position = 'absolute';
 		
       //Transliterate the word si<->en
@@ -395,3 +384,39 @@ function gst(){
 
 body=frame.document.getElementsByTagName('body')[0]
 body.onclick=function(){gst()};
+
+////////////////////////////popup//////////////////////////////
+var poped=false;
+var menuStr='<button id="popUp" style="background:tranparent;border:0px;color:red;font-size:14px">*</button>';
+var menu = frame.document.createElement('div');
+menu.style.position = 'absolute';
+menu.style.left = '2px';
+menu.style.top = '2px';
+menu.innerHTML = menuStr;
+frame.document.getElementsByTagName('body')[0].appendChild(menu);
+frame.document.getElementById('popUp').onclick=function(){popUp()};
+
+function popDown(){
+	menu.innerHTML=menuStr;
+	frame.document.getElementById('popUp').onclick=function(){popUp()};
+}
+
+function popUp(){
+	if(!false){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET",chrome.extension.getURL('/data/popup.html'),true);
+		xhr.responseType = "text";
+		xhr.onreadystatechange=function(){
+			if (xhr.readyState==4 || xhr.readyState==200){
+				if (xhr.status == 200) {
+					menu.innerHTML=xhr.response;
+					frame.document.getElementById('ttPopCancel').onclick=function(){popDown()};
+				} else {
+					console.log("XHR:"+status);
+				}
+			}
+		}
+		xhr.send(null);
+		poped=true;
+	}
+}
