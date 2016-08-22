@@ -68,18 +68,8 @@ function loadData(ele){
    xhr.send(null);
 }
 
-//load all data files recursively
+//load all dictionary data files recursively
 loadData(dataArr[0]);
-
-//load local my dictionary
-chrome.storage.sync.get({
-   myDict:null 
-}, function(items) {
-   //console.log(items.myDict);
-   if(items.myDict){
-      dictsObj['mydict']=['si','si',items.myDict,'My dictionary (local)'];
-   }
-});
 
 //www.tipitaka.org has frames 
 var frame=window;
@@ -224,8 +214,8 @@ function translit(text){
 	 return text;
 }
 
+//Remove popup tooltip element
 function rmTt(){
-   //Remove popup tooltip element
 	var pd=frame.document.getElementById('ttt');
 	if(pd){
 		pd.remove();
@@ -241,83 +231,72 @@ function rmTt(){
    }
 }
 
-function saveWord(){
-
-}
-
-/*
-function addWordWin(word){
-   var ttDef=frame.document.getElementById('ttDef');
-   var xhr = new XMLHttpRequest();
-   xhr.open("GET",chrome.extension.getURL('/data/popup.html'),true);
-   xhr.responseType = "text";
-   xhr.onreadystatechange=function(){
-      if (xhr.readyState==4 || xhr.readyState==200){
-         if (xhr.status == 200) {
-            ttDef.innerHTML=xhr.response;
-            frame.document.getElementById('ttDef').onclick=function(){
-               saveWord();
-            };
-         } else {
-            console.log("XHR:"+status);
+//Addword form and functionality
+function addWordWin(word,def,ref){
+   //Populate word,def,ref with previouse values if available
+   chrome.storage.sync.get({
+      myDict: null
+   }, function(items) {
+      //console.log(items);
+      if(items.myDict){
+         for(var k in items.myDict){
+            if(items.myDict[k][0]==word){
+               word=items.myDict[k][0];
+               def=items.myDict[k][1];
+               ref=items.myDict[k][2];
+            }
          }
       }
-   }
-   xhr.send(null);
-}
-*/
-function addWordWin(word,def,ref){
-   var ttDef=frame.document.getElementById('ttDef');
-   var form="<table  width='100%'>"
-      +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=40 value='"+word+"'></input></td></tr>"
-      +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=40 value='"+ref+"'></input></td></tr>"
-      +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=40>"+def+"</textarea></td></tr>"
-      +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
-      +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
-      +"</table>";
-   ttDef.innerHTML=form;
-   frame.document.getElementById('ttPopSave').onclick=function(){
-      var word=document.getElementById('ttPopWord').value;
-      var ref=document.getElementById('ttPopRef').value;
-      var def=document.getElementById('ttPopDef').value;
-      console.log("Added:"+word+":"+ref+":"+def);
+      var ttDef=frame.document.getElementById('ttDef');
+      var form="<table  width='100%'>"
+         +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=40 value='"+word+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=40 value='"+ref+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=40>"+def+"</textarea></td></tr>"
+         +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
+         +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
+         +"</table>";
+      ttDef.innerHTML=form;
 
-      //Read the stored options
-      chrome.storage.sync.get({
-         myDict: null
-      }, function(items) {
-         var md;
-         if(items.myDict){
-            md=items.myDict;
-            //console.log(md);
-            md.push([word,def,ref]);
-         }else{
-            dd=[[word,def,ref]];
-         }
+      frame.document.getElementById('ttPopSave').onclick=function(){
+         var word=document.getElementById('ttPopWord').value;
+         var ref=document.getElementById('ttPopRef').value;
+         var def=document.getElementById('ttPopDef').value;
+         console.log("Added:"+word+":"+ref+":"+def);
 
-         //console.log(dd);
+         //Read the stored options
+         chrome.storage.sync.get({
+            myDict: null
+         }, function(items) {
+            var md;
+            if(items.myDict){
+               md=items.myDict;
 
-         chrome.storage.sync.set({
-            myDict: md
-         }, function() {
-            // Update status to let user know options were saved.
-            /*
-            var status = document.getElementById('ttPoNotify');
-            status.textContent = 'Saved.';
-            setTimeout(function() {
-               status.textContent = '';
-            }, 750);
-            */
-            console.log('Saved: '+word);
-         });
-
-      });
+               //delete the word before save if available
+               for(var k in md){
+                  if(md[k][0]==word){
+                     md.splice(k,1);
+                  }
+               }
+               md.push([word,def,ref]);
+            }else{
+               md=[[word,def,ref]];
+            }
       
-      rmTt();
-   };
+            //console.log(md);
+
+            //Read the stored options
+            chrome.storage.sync.set({
+               myDict: md
+            }, function() {
+               console.log('Saved: '+word);
+            });
+         });
+         rmTt();
+      };
+   });
 }
 
-//console.log(dictsObj);
+console.log(dictsObj);
 var mouseIn=false;
 function gst(){
 	var ttWidth=500;
@@ -356,6 +335,16 @@ function gst(){
 
    //If selection is text
 	if(text){
+      //load local my dictionary from storage
+      chrome.storage.sync.get({
+         myDict:null 
+      }, function(items) {
+         //console.log(items.myDict);
+         if(items.myDict){
+            dictsObj['mydict']=['si','si',items.myDict,'My dictionary (local)'];
+         }
+      });
+
       //All text read as lower case
       text=text.toLowerCase();
       text=text.split(" ")[0];
