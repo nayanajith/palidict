@@ -4,25 +4,28 @@
    border: 1px solid #999;
    background: #ffd;
    border-radius:4px;
-   padding: 9px;
+   padding: 5px 9px 9px 9px;
    color:#874d08;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+   z-index:200;
 }
-.popup{
+.ttPopup{
    border: 1px solid #999;
    background: #ffd;
    border-radius:4px;
    padding: 9px;
    color:#874d08;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+   z-index:100;
 }
-#menu{
+#ttMenu{
    border: 1px solid #999;
    background: #ffd;
    border-radius:4px;
    color:#874d08;
    opacity:0.5;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+   z-index:100;
 }
 .c1{
    color: orangered;
@@ -30,29 +33,42 @@
 .c2{
    color: orangered;
 }
-.tra_en{
+.ttTraEn{
    overflow-y: auto;
    max-height:150px;
    border-left:3px solid #AED6F1;
-   border-bottom:1px dashed #999;
+   border-bottom:1px solid #999;
    border-right:1px solid whitesmoke;
    font-size:12px;
    margin-bottom:4px;
    text-align: justify;
    font-family:"URW Palladio ITU", "DejaVu Serif", "Times New Roman", serif;
 }
-.tra_si{
+.ttTraSi{
    overflow-y: auto;
    max-height:150px;
    font-size:12px;
    margin-bottom:4px;
    border-left:3px solid #ABEBC6;
    border-right:1px solid whitesmoke;
-   border-bottom:1px dashed #999;
+   border-bottom:1px solid #999;
    text-align: justify;
    font-family:UN-Abhaya,KaputaUnicode,"Noto Sans Sinhala",Tipitaka_Sinhala1,"Iskoola Pota";
 }
-.tra_word{
-   border-bottom:1px solid silver;
+.ttTraWord{
+   color:#874d08;
    font-weight: bold;
+}
+.ttButton{
+   padding:0 4px 0 4px;
+   margin-left:2px;
+   background:#ffd;
+   border:1px solid silver;
+   box-shadow: 0 0 2px rgba(0,0,0,0.5);
+   border-radius:4px;
+}
+
+.ttAddFormTd{
+   color:#874d08;
+   font-family:"URW Palladio ITU", "DejaVu Serif", "Times New Roman", serif;
 }

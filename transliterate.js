@@ -9,6 +9,7 @@ var dictsObj={
 	yppn:	["en","en","/data/yuttadhammo_dppn_v.json"]
 }
 
+//Assign stored options to dictsObj array
 function getOptions(dicts){
    for(var d in dicts){
       //if(typeof dictsObj[d] != undefined){delete dictsObj[d]};
@@ -22,13 +23,12 @@ function getOptions(dicts){
 
 //Read the stored options
 chrome.storage.sync.get({
-   dicts: dictsObj
+	dicts: dictsObj
 }, function(items) {
-   if(items.dicts){
-      getOptions(items.dicts);
-   }
+	if(items.dicts){
+		getOptions(items.dicts);
+	}
 });
-
 
 //throw new Error("Something went badly wrong!");
 var dataArr=[];
@@ -38,7 +38,6 @@ for(var key in dictsObj){
    }
 }
 
-console.log(dataArr);
 
 var i=0;
 function callback(resp,ele){
@@ -72,6 +71,15 @@ function loadData(ele){
 //load all data files recursively
 loadData(dataArr[0]);
 
+//load local my dictionary
+chrome.storage.sync.get({
+   myDict:null 
+}, function(items) {
+   //console.log(items.myDict);
+   if(items.myDict){
+      dictsObj['mydict']=['si','si',items.myDict,'My dictionary (local)'];
+   }
+});
 
 //www.tipitaka.org has frames 
 var frame=window;
@@ -113,7 +121,8 @@ function translit(text){
     consonantsSin.push('ඛ'); consonantsRom.push('kh');
     consonantsSin.push('ග'); consonantsRom.push('g');
     consonantsSin.push('ඝ'); consonantsRom.push('gh');
-    consonantsSin.push('ඞ'); consonantsRom.push('n̆g');
+//    consonantsSin.push('ඞ'); consonantsRom.push('n̆g');
+    consonantsSin.push('ඞ'); consonantsRom.push('ṅ');
     consonantsSin.push('ච'); consonantsRom.push('c');
     consonantsSin.push('ඡ'); consonantsRom.push('ch');
     consonantsSin.push('ජ'); consonantsRom.push('j');
@@ -215,6 +224,101 @@ function translit(text){
 	 return text;
 }
 
+function rmTt(){
+   //Remove popup tooltip element
+	var pd=frame.document.getElementById('ttt');
+	if(pd){
+		pd.remove();
+   }
+   if (window.getSelection) {
+      if (window.getSelection().empty) {  // Chrome
+         window.getSelection().empty();
+      } else if (window.getSelection().removeAllRanges) {  // Firefox
+         window.getSelection().removeAllRanges();
+      }
+   } else if (document.selection) {  // IE?
+      document.selection.empty();
+   }
+}
+
+function saveWord(){
+
+}
+
+/*
+function addWordWin(word){
+   var ttDef=frame.document.getElementById('ttDef');
+   var xhr = new XMLHttpRequest();
+   xhr.open("GET",chrome.extension.getURL('/data/popup.html'),true);
+   xhr.responseType = "text";
+   xhr.onreadystatechange=function(){
+      if (xhr.readyState==4 || xhr.readyState==200){
+         if (xhr.status == 200) {
+            ttDef.innerHTML=xhr.response;
+            frame.document.getElementById('ttDef').onclick=function(){
+               saveWord();
+            };
+         } else {
+            console.log("XHR:"+status);
+         }
+      }
+   }
+   xhr.send(null);
+}
+*/
+function addWordWin(word,def,ref){
+   var ttDef=frame.document.getElementById('ttDef');
+   var form="<table  width='100%'>"
+      +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=40 value='"+word+"'></input></td></tr>"
+      +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=40 value='"+ref+"'></input></td></tr>"
+      +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=40>"+def+"</textarea></td></tr>"
+      +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
+      +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
+      +"</table>";
+   ttDef.innerHTML=form;
+   frame.document.getElementById('ttPopSave').onclick=function(){
+      var word=document.getElementById('ttPopWord').value;
+      var ref=document.getElementById('ttPopRef').value;
+      var def=document.getElementById('ttPopDef').value;
+      console.log("Added:"+word+":"+ref+":"+def);
+
+      //Read the stored options
+      chrome.storage.sync.get({
+         myDict: null
+      }, function(items) {
+         var md;
+         if(items.myDict){
+            md=items.myDict;
+            //console.log(md);
+            md.push([word,def,ref]);
+         }else{
+            dd=[[word,def,ref]];
+         }
+
+         //console.log(dd);
+
+         chrome.storage.sync.set({
+            myDict: md
+         }, function() {
+            // Update status to let user know options were saved.
+            /*
+            var status = document.getElementById('ttPoNotify');
+            status.textContent = 'Saved.';
+            setTimeout(function() {
+               status.textContent = '';
+            }, 750);
+            */
+            console.log('Saved: '+word);
+         });
+
+      });
+      
+      rmTt();
+   };
+}
+
+//console.log(dictsObj);
+var mouseIn=false;
 function gst(){
 	var ttWidth=500;
 	var ttHeight=100;
@@ -225,16 +329,16 @@ function gst(){
 	var ih=frame.innerHeight;			// Height of the window
    var xOffset=Math.max(frame.document.documentElement.scrollLeft,frame.document.body.scrollLeft);
    var yOffset=Math.max(frame.document.documentElement.scrollTop,frame.document.body.scrollTop);
+   var scrollWidth=Math.max(frame.document.scrollingElement.scrollWidth,frame.document.body.scrollWidth);
+   var scrollHeight=Math.max(frame.document.scrollingElement.scrollHeight,frame.document.body.scrollHeight);
 
+	//Window right edge fix - move the tooltip left until full view inside the page
    x=x+xOffset;
-
-	//Window right edge fix
 	if((iw-x)<ttWidth){
 		x=iw-ttWidth-40;
 	}
 
-	console.log(x);
-   y=y+10+yOffset;
+   var yTop=y+10+yOffset;
 
 	var text = "";
 	if (frame.getSelection) {
@@ -249,6 +353,7 @@ function gst(){
 		pd.remove();
    }
 
+
    //If selection is text
 	if(text){
       //All text read as lower case
@@ -259,14 +364,7 @@ function gst(){
 		var d = frame.document.createElement('div');
 		d.id='ttt';
 		d.style.left = x+'px';
-
-		//Window bottom edge fix
-		if((ih-y)<ttHeight){
-			d.style.bottom = (ih-y+30)+'px';
-		}else{
-			d.style.top = y+'px';
-		}
-
+      d.style.top = yTop+'px';
 		d.style.position = 'absolute';
 		
       //Transliterate the word si<->en
@@ -369,54 +467,60 @@ function gst(){
 
 			if(defAll!=''){
 				if(dictsObj[k][1]=='en'){
-					defHtml+='<div title="'+dict_name+'" class="tra_en" >'+defAll+'</div>';
+					defHtml+='<div title="'+dict_name+'" class="ttTraEn" >'+defAll+'</div>';
 				}else{
-					defHtml+='<div title="'+dict_name+'" class="tra_si" >'+defAll+'</div>';
+					defHtml+='<div title="'+dict_name+'" class="ttTraSi" >'+defAll+'</div>';
 				}
 			}
          defAll='';
       }
 
-      d.innerHTML="<div width='100%' class='tra_word'>"+text+"⇠⇢"+textTr+"</div>"+defHtml;
-      frame.document.getElementsByTagName('body')[0].appendChild(d);
+      d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' >"+text+"⇠⇢"+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
+      //frame.document.getElementsByTagName('body')[0].appendChild(d);
+      frame.document.scrollingElement.appendChild(d);
+      d.parentElement.style.position='relative';
+
+      //Titlebar buttons
+	   var ttBtnAdd=frame.document.getElementById('ttBtnAdd');
+	   var ttBtnClose=frame.document.getElementById('ttBtnClose');
+      ttBtnClose.onclick=function(){
+         rmTt();
+      };
+
+      ttBtnAdd.onclick=function(){
+         if(sin){
+            addWordWin(text,"","");
+         }else{
+            addWordWin(textTr,"","");
+         }
+      };
+
+      //Tooltip bottom edge fix - get to tooltip to the top of the word
+      //console.log(ih+"::"+y+"::"+d.offsetHeight+"::"+yOffset+"::"+scrollHeight);
+      //console.log(scrollHeight-yOffset-y+10);
+		if((ih-y)<d.offsetHeight){
+			d.style.top = '';
+			d.style.bottom = (scrollHeight-yOffset-y-10)+'px';
+		}
    }
 }
 
 body=frame.document.getElementsByTagName('body')[0]
-body.onclick=function(){gst()};
+body.onclick=function(){
+   //Delete tooltip only if the mouse is out of the tooltip
+   var path=event.path;
+   var inTt=false;
+   for(var d in path){
+      if(path[d].id=='ttt'){
+         inTt=true;
+         break;
+      }
+   }
 
-////////////////////////////popup//////////////////////////////
-var poped=false;
-var menuStr='<button id="popUp" style="background:tranparent;border:0px;color:red;font-size:14px">*</button>';
-var menu = frame.document.createElement('div');
-menu.style.position = 'absolute';
-menu.style.left = '2px';
-menu.style.top = '2px';
-menu.innerHTML = menuStr;
-frame.document.getElementsByTagName('body')[0].appendChild(menu);
-frame.document.getElementById('popUp').onclick=function(){popUp()};
-
-function popDown(){
-	menu.innerHTML=menuStr;
-	frame.document.getElementById('popUp').onclick=function(){popUp()};
-}
-
-function popUp(){
-	if(!false){
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET",chrome.extension.getURL('/data/popup.html'),true);
-		xhr.responseType = "text";
-		xhr.onreadystatechange=function(){
-			if (xhr.readyState==4 || xhr.readyState==200){
-				if (xhr.status == 200) {
-					menu.innerHTML=xhr.response;
-					frame.document.getElementById('ttPopCancel').onclick=function(){popDown()};
-				} else {
-					console.log("XHR:"+status);
-				}
-			}
-		}
-		xhr.send(null);
-		poped=true;
-	}
-}
+	var pd=frame.document.getElementById('ttt');
+	if(pd){
+      if(! inTt) rmTt();                         
+   }else{
+      gst();
+   }
+};

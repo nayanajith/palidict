@@ -1,11 +1,11 @@
 // Saves options to chrome.storage
 var dictsObj={
-	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
-	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
-	tpe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
-	ype:	[true,"en","en",'/data/yuttadhammo_ped.json',"Yuttadhammo (EN)Pali-English"],
-	ycpe:	[true,"en","en","/data/yuttadhammo_cped_v.json","Yuttadhammo Concise (EN)Pali-English"],
-	yppn:	[true,"en","en","/data/yuttadhammo_dppn_v.json","Yuttadhammo Dictionary of (EN)Pali Proper Names"]
+	pbps:	[false,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
+	msps:	[false,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
+	tpe:	[false,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
+	ype:	[false,"en","en",'/data/yuttadhammo_ped.json',"Yuttadhammo (EN)Pali-English"],
+	ycpe:	[false,"en","en","/data/yuttadhammo_cped_v.json","Yuttadhammo Concise (EN)Pali-English"],
+	yppn:	[false,"en","en","/data/yuttadhammo_dppn_v.json","Yuttadhammo Dictionary of (EN)Pali Proper Names"]
 }
   
 
