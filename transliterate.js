@@ -42,7 +42,19 @@ for(var key in dictsObj){
 var i=0;
 function callback(resp,ele){
 	if(dictsObj[ele]){
-		dictsObj[ele][2]=resp;
+
+      //convert array to hash (object)
+      var hash={};
+      for(var k in resp){
+         if(hash[resp[k][0]]){
+            hash[resp[k][0]]=hash[resp[k][0]]+"||"+resp[k][1];
+         }else{
+            hash[resp[k][0]]=resp[k][1];
+         }
+      }
+
+		//dictsObj[ele][2]=resp;
+		dictsObj[ele][2]=hash;
 	}
    i++;
    if(i<dataArr.length){
@@ -77,6 +89,7 @@ if(document.location.origin=="http://www.tipitaka.org"){
    var frame=window.frames['text'];
 }
 
+//Transliterate sinhala <--> english (roman)
 var sin=true;
 function translit(text){
    var consonantsRom = [];
@@ -341,7 +354,13 @@ function gst(){
       }, function(items) {
          //console.log(items.myDict);
          if(items.myDict){
-            dictsObj['mydict']=['si','si',items.myDict,'My dictionary (local)'];
+
+            //convert array to hash
+            var hash={};
+            for(var k in items.myDict){
+               hash[items.myDict[k][0]]=items.myDict[k][1];
+            }
+            dictsObj['mydict']=['si','si',hash,'My dictionary (local)'];
          }
       });
 
@@ -366,7 +385,7 @@ function gst(){
       for(var k in dictsObj){
          var dict_name=dictsObj[k][3];
          dict=dictsObj[k][2];
-         var word=text;
+         var word=text.trim();
 
          //If word is sinhala, transliteration will be english
          if(sin){
@@ -383,15 +402,11 @@ function gst(){
          var def='';
 
          //Identify the starting sub-word - reduce the word from right to left <--
+         
          while(word.length > 0){
-            for(var i in dict){
-               if(word==dict[i][0]){
-                  if(def != ''){
-                     def+=";"+dict[i][1];
-                  }else{
-                     def+=dict[i][1];
-                  }
-               }
+
+            if(dict[word]){
+               def+=dict[word];
             }
 
             if(def==''){
@@ -411,43 +426,40 @@ function gst(){
          word  = right;
 
          while(word.length > 0){
-            for(var i in dict){
-               if(word==dict[i][0]){
-                  if(def != ''){
-                     def+=";"+dict[i][1];
-                  }else{
-                     def+=dict[i][1];
-                  }
-               }
-            }
-
-            if(def==''){
-               word = word.substring(1, word.length);
+            if(dict[word]){
+               def+=dict[word];
             }else{
-               break;
-            }
-         }
-         if(def != ''){
-            defAll+="[⇢ "+word+"] "+def+"<br>";
-         }
+               //identify the middle word - remove starting sub-word and ending sub-word from the word
 
-         //identify the middle word - remove starting sub-word and ending sub-word from the word
-         def='';
-         var r = RegExp(word);
-         word = right.replace(r,"");
-         for(var i in dict){
-            if(word==dict[i][0]){
-               if(def != ''){
-                  def+=";"+dict[i][1];
+               var mid=word;
+               while(mid.length > 0){
+
+                  if(dict[mid]){
+                     def+=dict[mid];
+                  }
+
+                  if(def != ''){
+                     defAll+="[⇢ "+mid+" ⇠] "+def+"<br>";
+                  }
+                  if(def==''){
+                     mid = mid.slice(0,-1);
+                  }else{
+                     break;
+                  }
+
+               }
+
+               if(def==''){
+                  word = word.substring(1, word.length);
                }else{
-                  def+=dict[i][1];
+                  break;
                }
             }
+            if(def != ''){
+               defAll+="[⇢ "+word+"] "+def+"<br>";
+            }
          }
 
-         if(def != ''){
-            defAll+="[⇢ "+word+" ⇠] "+def+"<br>";
-         }
 
          //Resize the font when the meaning has more than 200 chars
          if(defAll.length > 200){
