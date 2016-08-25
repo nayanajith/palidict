@@ -46,10 +46,12 @@ function callback(resp,ele){
       //convert array to hash (object)
       var hash={};
       for(var k in resp){
-         if(hash[resp[k][0]]){
-            hash[resp[k][0]]=hash[resp[k][0]]+"||"+resp[k][1];
+         var word=resp[k][0].trim();
+         var def=resp[k][1].trim();
+         if(hash[word]){
+            hash[word]=hash[word]+"; "+def;
          }else{
-            hash[resp[k][0]]=resp[k][1];
+            hash[word]=def;
          }
       }
 
@@ -90,7 +92,7 @@ if(document.location.origin=="http://www.tipitaka.org"){
 }
 
 //Transliterate sinhala <--> english (roman)
-var sin=true;
+var lang='si';
 function translit(text){
    var consonantsRom = [];
    var consonantsSin = [];
@@ -167,14 +169,14 @@ function translit(text){
     //Detect if the text is roman  
     for(var c in consonantsRom){
        if(consonantsRom[c] != '' &  text.indexOf(consonantsRom[c]) != '-1'){
-          sin=false;
+          lang=en;
           break;
        }
     }
 
     for(var v in vowelsRom){
        if(vowelsRom[v] != '' & text.indexOf(vowelsRom[v]) != '-1'){
-          sin=false;
+          lang=en;
           break;
        }
     }
@@ -309,7 +311,8 @@ function addWordWin(word,def,ref){
    });
 }
 
-console.log(dictsObj);
+//console.log(dictsObj);
+
 var mouseIn=false;
 function gst(){
 	var ttWidth=500;
@@ -367,6 +370,7 @@ function gst(){
       //All text read as lower case
       text=text.toLowerCase();
       text=text.split(" ")[0];
+      text=text.trim();
 
       //Drow the tooltip element and style it
 		var d = frame.document.createElement('div');
@@ -378,86 +382,88 @@ function gst(){
       //Transliterate the word si<->en
       var textTr  =translit(text);
 
-      var defHtml ='';
-      var defAll  ='';
+      var defHtml = '';
+      var defAll  = '';
+      var concat  = [];
 
       //Finding the words from the dictionaries
       for(var k in dictsObj){
          var dict_name=dictsObj[k][3];
          dict=dictsObj[k][2];
-         var word=text.trim();
+         var word=text;
 
          //If word is sinhala, transliteration will be english
-         if(sin){
-            if(dictsObj[k][1]=='en'){
-               word=textTr;
-            }
-         }else{
-            if(dictsObj[k][1]=='si'){
-               word=textTr;
-            }
+         if(lang!=dictsObj[k][1]){
+            word=textTr;
          }
 
+
          var right;
-         var def='';
+         var def  ='';
+         var found=[];
 
          //Identify the starting sub-word - reduce the word from right to left <--
          
          while(word.length > 0){
-
             if(dict[word]){
                def+=dict[word];
-            }
-
-            if(def==''){
-               word = word.slice(0,-1);
-            }else{
+               concat.push(word);
+               found.push(word);
                break;
+            }else{
+               word = word.slice(0,-1);
             }
          }
+
          if(def != ''){
-            defAll+="["+word+" ⇠]"+def+"<br>";
+            defAll+="<b>["+word+" ⇠]</b> "+def+"<br>";
          }
 
          //Identify the ending sub-word - reduce from left to right -->
          def='';
          var r = RegExp(word);
+
          right = text.replace(r,"");
+
+         //textTr if lang is not equal to dict language
+         if(lang!=dictsObj[k][1]){
+            right = textTr.replace(r,"");
+         }
+
          word  = right;
+         var mdef='';
 
          while(word.length > 0){
             if(dict[word]){
-               def+=dict[word];
+               concat.push(word);
+               if(found.indexOf(word) == -1){
+                  def+=dict[word];
+                  defAll+="<b>[⇢ "+word+"]</b> "+def+"<br>";
+                  def='';
+                  found.push(word);
+               }
+               break;
             }else{
                //identify the middle word - remove starting sub-word and ending sub-word from the word
-
                var mid=word;
                while(mid.length > 0){
-
+                  mid=mid.trim();
                   if(dict[mid]){
-                     def+=dict[mid];
-                  }
-
-                  if(def != ''){
-                     defAll+="[⇢ "+mid+" ⇠] "+def+"<br>";
-                  }
-                  if(def==''){
-                     mid = mid.slice(0,-1);
-                  }else{
+                     concat.push(mid);
+                     if(found.indexOf(mid) == -1){
+                        mdef+=dict[mid];
+                        defAll+="<b>[⇢ "+mid+" ⇠]</b> "+mdef+"<br>";
+                        mdef='';
+                        found.push(mid);
+                     }
                      break;
+                  }else{
+                     mid = mid.slice(0,-1);
                   }
-
-               }
-
-               if(def==''){
-                  word = word.substring(1, word.length);
-               }else{
-                  break;
                }
             }
-            if(def != ''){
-               defAll+="[⇢ "+word+"] "+def+"<br>";
-            }
+            word = word.substring(1, word.length);
+
          }
 
 
@@ -476,7 +482,9 @@ function gst(){
          defAll='';
       }
 
-      d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' >"+text+"⇠⇢"+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
+      
+
+      d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
       //frame.document.getElementsByTagName('body')[0].appendChild(d);
       frame.document.scrollingElement.appendChild(d);
       d.parentElement.style.position='relative';
@@ -506,8 +514,8 @@ function gst(){
    }
 }
 
-body=frame.document.getElementsByTagName('body')[0]
-body.onclick=function(){
+var body=frame.document.getElementsByTagName('body')[0];
+body.onclick=function(event){
    //Delete tooltip only if the mouse is out of the tooltip
    var path=event.path;
    var inTt=false;
