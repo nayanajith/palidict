@@ -6,6 +6,25 @@ function log(item){
    console.log(item);
 }
 
+var optsObj={
+	subwords:	[true,"Enable sub-word detection"],
+}
+
+//Populate options if not available in store
+var optNotSet=true;
+chrome.storage.sync.get({
+   opts: optNotSet 
+}, function(items) {
+   if(items.opts==true){
+      chrome.storage.sync.set({
+        opts:optsObj 
+      }, function() {
+         log("Options array initialized..");
+      });
+   }
+});
+
+//Dictionary array
 var dictsObjE={
 	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
 	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
@@ -99,10 +118,12 @@ function loadData(ele){
 
 //Read the stored dictionary options 
 chrome.storage.sync.get({
-   dicts: dictsObjE
+   dicts: dictsObjE,
+   opts: optsObj
 }, function(items) {
    getOptions(items.dicts);
    loadData(dataArr[0]);
+   optsObj=items.opts;
 });
 
 
@@ -445,87 +466,99 @@ function gst(retDef,manWord){
          var found=[];
 
          //Identify the starting sub-word - reduce the word from right to left <--
-         var subWord=word;
+         if(optsObj['subwords'][0]==true){
+            var subWord=word;
 
-         while(word.length > 0){
+            while(word.length > 0){
 
-            subWord=word;
+               subWord=word;
 
-            if(dictsObj[k][1]=='si'){
-               subWord=translit(word,true,'en');
-            }
+               if(dictsObj[k][1]=='si'){
+                  subWord=translit(word,true,'en');
+               }
 
-            if(dict[subWord]){
-               def+=dict[subWord];
-               concat.push(subWord);
-               found.push(subWord);
-               break;
-            }else{
-               word = word.slice(0,-1);
-            }
-         }
-
-         if(def != ''){
-            defAll+="<b>["+subWord+" ⇠]</b> "+def+"<br>";
-         }
-
-         //Identify the ending sub-word - reduce from left to right -->
-         def='';
-         var r = RegExp(word);
-
-         right = text.replace(r,"");
-
-         //textTr if lang is not equal to dict language
-         if(lang!=dictsObj[k][1]){
-            right = textTr.replace(r,"");
-         }
-
-         word  = right;
-         var mdef='';
-
-         while(word.length > 0){
-            subWord=word;
-
-            if(dictsObj[k][1]=='si'){
-               subWord=translit(word,true,'en');
-            }
-
-            if(dict[subWord]){
-               concat.push(subWord);
-               if(found.indexOf(subWord) == -1){
+               if(dict[subWord]){
                   def+=dict[subWord];
-                  defAll+="<b>[⇢ "+subWord+"]</b> "+def+"<br>";
-                  def='';
+                  concat.push(subWord);
                   found.push(subWord);
-               }
-               break;
-            }else{
-               //identify the middle word - remove starting sub-word and ending sub-word from the word
-               var mid=word;
-               while(mid.length > 0){
-                  mid=mid.trim();
-
-                  subWord=mid;
-                  if(dictsObj[k][1]=='si'){
-                     subWord=translit(mid,true,'en');
-                  }
-
-                  if(dict[subWord]){
-                     concat.push(subWord);
-                     if(found.indexOf(subWord) == -1){
-                        mdef+=dict[subWord];
-                        defAll+="<b>[⇢ "+subWord+" ⇠]</b> "+mdef+"<br>";
-                        mdef='';
-                        found.push(subWord);
-                     }
-                     break;
-                  }else{
-                     mid = mid.slice(0,-1);
-                  }
+                  break;
+               }else{
+                  word = word.slice(0,-1);
                }
             }
-            word = word.substring(1, word.length);
 
+            if(def != ''){
+               defAll+="<b>["+subWord+" ⇠]</b> "+def+"<br>";
+            }
+
+            //Identify the ending sub-word - reduce from left to right -->
+            def='';
+            var r = RegExp(word);
+
+            right = text.replace(r,"");
+
+            //textTr if lang is not equal to dict language
+            if(lang!=dictsObj[k][1]){
+               right = textTr.replace(r,"");
+            }
+
+            word  = right;
+            var mdef='';
+
+            while(word.length > 0){
+               subWord=word;
+
+               if(dictsObj[k][1]=='si'){
+                  subWord=translit(word,true,'en');
+               }
+
+               if(dict[subWord]){
+                  concat.push(subWord);
+                  if(found.indexOf(subWord) == -1){
+                     def+=dict[subWord];
+                     defAll+="<b>[⇢ "+subWord+"]</b> "+def+"<br>";
+                     def='';
+                     found.push(subWord);
+                  }
+                  break;
+               }else{
+                  //identify the middle word - remove starting sub-word and ending sub-word from the word
+                  var mid=word;
+                  while(mid.length > 0){
+                     mid=mid.trim();
+
+                     subWord=mid;
+                     if(dictsObj[k][1]=='si'){
+                        subWord=translit(mid,true,'en');
+                     }
+
+                     if(dict[subWord]){
+                        concat.push(subWord);
+                        if(found.indexOf(subWord) == -1){
+                           mdef+=dict[subWord];
+                           defAll+="<b>[⇢ "+subWord+" ⇠]</b> "+mdef+"<br>";
+                           mdef='';
+                           found.push(subWord);
+                        }
+                        break;
+                     }else{
+                        mid = mid.slice(0,-1);
+                     }
+                  }
+               }
+               word = word.substring(1, word.length);
+
+            }
+         }else{
+            if(lang == dictsObj[k][1]){
+               if(dict[text]){
+                  defAll+=dict[text]+"<br>";
+               }
+            }else{
+               if(dict[textTr]){
+                  defAll+=dict[textTr];
+               }
+            }
          }
 
 
