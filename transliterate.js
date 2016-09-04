@@ -115,7 +115,7 @@ if(document.location.origin=="http://www.tipitaka.org"){
 
 //Transliterate sinhala <--> english (roman)
 var lang='si';
-function translit(text){
+function translit(text,trOnly=false,language=false){
    var consonantsRom = [];
    var consonantsSin = [];
    var vowelsRom     = [];
@@ -188,22 +188,30 @@ function translit(text){
     consonantsSin.push('ෆ'); consonantsRom.push('f');
 
 
+    var lang_='si';
+
+    //Detect language
+    if(language==false){
     //Detect if the text is roman  
-    for(var c in consonantsRom){
-       if(consonantsRom[c] != '' &  text.indexOf(consonantsRom[c]) != '-1'){
-          lang='en';
-          break;
+       for(var c in consonantsRom){
+          if(consonantsRom[c] != '' &  text.indexOf(consonantsRom[c]) != '-1'){
+             lang_='en';
+             break;
+          }
        }
+
+       for(var v in vowelsRom){
+          if(vowelsRom[v] != '' & text.indexOf(vowelsRom[v]) != '-1'){
+             lang_='en';
+             break;
+          }
+       }
+    }else{
+       lang_=language;  // use the given language
     }
 
-    for(var v in vowelsRom){
-       if(vowelsRom[v] != '' & text.indexOf(vowelsRom[v]) != '-1'){
-          lang='en';
-          break;
-       }
-    }
 
-    if(lang=='si'){ //sin
+    if(lang_=='si'){ //sin
        for(var v in vowelsRom){
           for(var c in consonantsRom){
              r = new RegExp(consonantsSin[c]+vowelsSinMod[v],"g");
@@ -248,6 +256,12 @@ function translit(text){
           text=text.replace(r,vowelsSin[v]);
        }
     }
+
+    //If translate only option is true don't change language flag
+    if(trOnly==false){
+       lang=lang_;
+    }
+
 	 return text;
 }
 
@@ -410,6 +424,12 @@ function gst(retDef,manWord){
       //Transliterate the word si<->en
       textTr  =translit(text);
 
+      //English word will be used to find sub-word
+      var textEn=text;
+      if(lang=='si'){
+         var textEn=textTr;
+      }
+
       var defHtml = '';
       var defAll  = '';
       var concat  = [];
@@ -418,25 +438,27 @@ function gst(retDef,manWord){
       for(var k in dictsObj){
          var dict_name=dictsObj[k][3];
          dict=dictsObj[k][2];
-         var word=text;
-
-         //If word is sinhala, transliteration will be english
-         if(lang!=dictsObj[k][1]){
-            word=textTr;
-         }
-
-
+         //var word=text;
+         var word=textEn;
          var right;
          var def  ='';
          var found=[];
 
          //Identify the starting sub-word - reduce the word from right to left <--
-         
+         var subWord=word;
+
          while(word.length > 0){
-            if(dict[word]){
-               def+=dict[word];
-               concat.push(word);
-               found.push(word);
+
+            subWord=word;
+
+            if(dictsObj[k][1]=='si'){
+               subWord=translit(word,true,'en');
+            }
+
+            if(dict[subWord]){
+               def+=dict[subWord];
+               concat.push(subWord);
+               found.push(subWord);
                break;
             }else{
                word = word.slice(0,-1);
@@ -444,7 +466,7 @@ function gst(retDef,manWord){
          }
 
          if(def != ''){
-            defAll+="<b>["+word+" ⇠]</b> "+def+"<br>";
+            defAll+="<b>["+subWord+" ⇠]</b> "+def+"<br>";
          }
 
          //Identify the ending sub-word - reduce from left to right -->
@@ -462,13 +484,19 @@ function gst(retDef,manWord){
          var mdef='';
 
          while(word.length > 0){
-            if(dict[word]){
-               concat.push(word);
-               if(found.indexOf(word) == -1){
-                  def+=dict[word];
-                  defAll+="<b>[⇢ "+word+"]</b> "+def+"<br>";
+            subWord=word;
+
+            if(dictsObj[k][1]=='si'){
+               subWord=translit(word,true,'en');
+            }
+
+            if(dict[subWord]){
+               concat.push(subWord);
+               if(found.indexOf(subWord) == -1){
+                  def+=dict[subWord];
+                  defAll+="<b>[⇢ "+subWord+"]</b> "+def+"<br>";
                   def='';
-                  found.push(word);
+                  found.push(subWord);
                }
                break;
             }else{
@@ -476,13 +504,19 @@ function gst(retDef,manWord){
                var mid=word;
                while(mid.length > 0){
                   mid=mid.trim();
-                  if(dict[mid]){
-                     concat.push(mid);
-                     if(found.indexOf(mid) == -1){
-                        mdef+=dict[mid];
-                        defAll+="<b>[⇢ "+mid+" ⇠]</b> "+mdef+"<br>";
+
+                  subWord=mid;
+                  if(dictsObj[k][1]=='si'){
+                     subWord=translit(mid,true,'en');
+                  }
+
+                  if(dict[subWord]){
+                     concat.push(subWord);
+                     if(found.indexOf(subWord) == -1){
+                        mdef+=dict[subWord];
+                        defAll+="<b>[⇢ "+subWord+" ⇠]</b> "+mdef+"<br>";
                         mdef='';
-                        found.push(mid);
+                        found.push(subWord);
                      }
                      break;
                   }else{
