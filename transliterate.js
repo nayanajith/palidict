@@ -369,6 +369,27 @@ function addWordWin(word,def,ref){
    });
 }
 
+var fixObj={ 'a':'ā', 'i':'ī', 'u':'ū' };
+
+function fixLeft(str){
+   for(w in fixObj){
+      if(str[0]==fixObj[w]){
+         str=str.replace(RegExp('^'+fixObj[w]),w);
+      }
+   }
+   return str;
+}
+
+function fixRight(str){
+   for(w in fixObj){
+      if(str[str.length-1]==fixObj[w]){
+         str=str.replace(RegExp(fixObj[w]+'$'),w);
+      }
+   }
+   return str;
+}
+
+
 //log(dictsObj);
 var text="";
 var textTr="";
@@ -465,6 +486,7 @@ function gst(retDef,manWord){
          var def  ='';
          var found=[];
 
+   
          //Identify the starting sub-word - reduce the word from right to left <--
          if(optsObj['subwords'][0]==true){
             var subWord=word;
@@ -483,7 +505,12 @@ function gst(retDef,manWord){
                   found.push(subWord);
                   break;
                }else{
-                  word = word.slice(0,-1);
+                  var fixW=fixRight(word);
+                  if(word != fixW){
+                     word=fixW;
+                  }else{
+                     word = word.slice(0,-1);
+                  }
                }
             }
 
@@ -542,11 +569,21 @@ function gst(retDef,manWord){
                         }
                         break;
                      }else{
-                        mid = mid.slice(0,-1);
+                        var fixW=fixRight(mid);
+                        if(mid != fixW){
+                           mid = fixW;
+                        }else{
+                           mid = mid.slice(0,-1);
+                        }
                      }
                   }
                }
-               word = word.substring(1, word.length);
+               var fixW=fixLeft(word);
+               if(word != fixW){
+                  word=fixW;
+               }else{
+                  word = word.substring(1, word.length);
+               }
 
             }
          }else{
