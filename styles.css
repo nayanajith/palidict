@@ -7,7 +7,8 @@
    padding: 5px 9px 9px 9px;
    color:#874d08;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-   z-index:200;
+   z-index:10000;
+   font-family:'Noto Sans Sinhala', 'malithi_web', "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .ttPopup{
    border: 1px solid #999;
@@ -16,7 +17,7 @@
    padding: 9px;
    color:#874d08;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-   z-index:100;
+   z-index:10000;
 }
 #ttMenu{
    border: 1px solid #999;
@@ -25,7 +26,7 @@
    color:#874d08;
    opacity:0.5;
    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-   z-index:100;
+   z-index:10000;
 }
 .c1{
    color: orangered;
@@ -42,7 +43,7 @@
    font-size:12px;
    margin-bottom:4px;
    text-align: justify;
-   font-family:"URW Palladio ITU", "DejaVu Serif", "Times New Roman", serif;
+   font-family:'Noto Sans Sinhala', 'malithi_web', "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .ttTraSi{
    overflow-y: auto;
@@ -59,10 +60,19 @@
    color:#874d08;
    font-weight: bold;
 }
-.ttButton{
+button{
    padding:0 4px 0 4px;
    margin-left:2px;
-   background:#ffd;
+   background:#ffa;
+   border:1px solid silver;
+   box-shadow: 0 0 2px rgba(0,0,0,0.5);
+   border-radius:4px;
+}
+
+input{
+   padding:0 6px 0 6px;
+   margin-left:2px;
+   background:#ffe;
    border:1px solid silver;
    box-shadow: 0 0 2px rgba(0,0,0,0.5);
    border-radius:4px;

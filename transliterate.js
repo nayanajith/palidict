@@ -1,3 +1,27 @@
+var dictsObjS={
+	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
+	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
+	tpe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
+	ype:	[true,"en","en",'/data/yuttadhammo_ped.json',"Yuttadhammo (EN)Pali-English"],
+	ycpe:	[true,"en","en","/data/yuttadhammo_cped_v.json","Yuttadhammo Concise (EN)Pali-English"],
+	yppn:	[true,"en","en","/data/yuttadhammo_dppn_v.json","Yuttadhammo Dictionary of (EN)Pali Proper Names"]
+}
+
+//Populate dictionary selection if not available in store
+var dictNotSet=true;
+chrome.storage.sync.get({
+   dicts: dictNotSet 
+}, function(items) {
+   console.log(items);
+   if(items.dicts==true){
+      chrome.storage.sync.set({
+         dicts: dictsObjS
+      }, function() {
+         console.log("Dict array initialized..");
+      });
+   }
+});
+
 console.log("Started..");
 
 var dictsObj={
@@ -169,19 +193,19 @@ function translit(text){
     //Detect if the text is roman  
     for(var c in consonantsRom){
        if(consonantsRom[c] != '' &  text.indexOf(consonantsRom[c]) != '-1'){
-          lang=en;
+          lang='en';
           break;
        }
     }
 
     for(var v in vowelsRom){
        if(vowelsRom[v] != '' & text.indexOf(vowelsRom[v]) != '-1'){
-          lang=en;
+          lang='en';
           break;
        }
     }
 
-    if(sin){ //sin->en
+    if(lang=='si'){ //sin
        for(var v in vowelsRom){
           for(var c in consonantsRom){
              r = new RegExp(consonantsSin[c]+vowelsSinMod[v],"g");
@@ -264,13 +288,14 @@ function addWordWin(word,def,ref){
       }
       var ttDef=frame.document.getElementById('ttDef');
       var form="<table  width='100%'>"
-         +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=40 value='"+word+"'></input></td></tr>"
-         +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=40 value='"+ref+"'></input></td></tr>"
-         +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=40>"+def+"</textarea></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=25 value='"+word+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=25 value='"+ref+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=25>"+def+"</textarea></td></tr>"
          +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
          +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
          +"</table>";
       ttDef.innerHTML=form;
+      ttDef.style.fontFamily='initial';
 
       frame.document.getElementById('ttPopSave').onclick=function(){
          var word=document.getElementById('ttPopWord').value;
@@ -312,9 +337,10 @@ function addWordWin(word,def,ref){
 }
 
 //console.log(dictsObj);
-
+var text="";
+var textTr="";
 var mouseIn=false;
-function gst(){
+function gst(retDef,manWord){
 	var ttWidth=500;
 	var ttHeight=100;
    //Calculate top,left
@@ -335,16 +361,20 @@ function gst(){
 
    var yTop=y+10+yOffset;
 
-	var text = "";
-	if (frame.getSelection) {
-		text = frame.getSelection().toString();
-	} else if (frame.document.selection && frame.document.selection.type != "Control") {
-		text = frame.document.selection.createRange().text;
-	}
+   text = "";
+   if(manWord){
+      text=manWord;
+   }else{
+      if (frame.getSelection) {
+         text = frame.getSelection().toString();
+      } else if (frame.document.selection && frame.document.selection.type != "Control") {
+         text = frame.document.selection.createRange().text;
+      }
+   }
 
    //Remove popup tooltip element
 	var pd=frame.document.getElementById('ttt');
-	if(pd){
+	if(pd && ! retDef){
 		pd.remove();
    }
 
@@ -380,7 +410,7 @@ function gst(){
 		d.style.position = 'absolute';
 		
       //Transliterate the word si<->en
-      var textTr  =translit(text);
+      textTr  =translit(text);
 
       var defHtml = '';
       var defAll  = '';
@@ -482,35 +512,38 @@ function gst(){
          defAll='';
       }
 
-      
+      if(retDef){
+         return defHtml;
+      }else{
 
-      d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
-      //frame.document.getElementsByTagName('body')[0].appendChild(d);
-      frame.document.scrollingElement.appendChild(d);
-      d.parentElement.style.position='relative';
+         d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
+         //frame.document.getElementsByTagName('body')[0].appendChild(d);
+         frame.document.scrollingElement.appendChild(d);
+         d.parentElement.style.position='relative';
 
-      //Titlebar buttons
-	   var ttBtnAdd=frame.document.getElementById('ttBtnAdd');
-	   var ttBtnClose=frame.document.getElementById('ttBtnClose');
-      ttBtnClose.onclick=function(){
-         rmTt();
-      };
+         //Titlebar buttons
+         var ttBtnClose=frame.document.getElementById('ttBtnClose');
+         ttBtnClose.onclick=function(){
+            rmTt();
+         };
 
-      ttBtnAdd.onclick=function(){
-         if(sin){
-            addWordWin(text,"","");
-         }else{
-            addWordWin(textTr,"","");
+         var ttBtnAdd=frame.document.getElementById('ttBtnAdd');
+         ttBtnAdd.onclick=function(){
+            if(lang=='si'){
+               addWordWin(text,"","");
+            }else{
+               addWordWin(textTr,"","");
+            }
+         };
+
+         //Tooltip bottom edge fix - get to tooltip to the top of the word
+         //console.log(ih+"::"+y+"::"+d.offsetHeight+"::"+yOffset+"::"+scrollHeight);
+         //console.log(scrollHeight-yOffset-y+10);
+         if((ih-y)<d.offsetHeight){
+            d.style.top = '';
+            d.style.bottom = (scrollHeight-yOffset-y-10)+'px';
          }
-      };
-
-      //Tooltip bottom edge fix - get to tooltip to the top of the word
-      //console.log(ih+"::"+y+"::"+d.offsetHeight+"::"+yOffset+"::"+scrollHeight);
-      //console.log(scrollHeight-yOffset-y+10);
-		if((ih-y)<d.offsetHeight){
-			d.style.top = '';
-			d.style.bottom = (scrollHeight-yOffset-y-10)+'px';
-		}
+      }
    }
 }
 
@@ -530,6 +563,47 @@ body.onclick=function(event){
 	if(pd){
       if(! inTt) rmTt();                         
    }else{
-      gst();
+      gst(false);
    }
 };
+
+
+//Addword form and functionality
+function manSearchWin(){
+
+   //CLeanup tooltip window
+   rmTt();
+
+   //Drow the tooltip element and style it
+   var d = frame.document.createElement('div');
+   d.id='ttt';
+   d.style.right = '5px';
+   d.style.top = '10px';
+   d.style.position = 'fixed';
+
+   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='manSearchDef'></div>";
+
+
+   frame.document.scrollingElement.appendChild(d);
+   d.parentElement.style.position='relative';
+   d.style.fontFamily='initial';
+
+   var ttBtnClose=frame.document.getElementById('ttBtnClose').onclick=function(){
+      rmTt();
+   };
+
+   var ttBtnAdd=frame.document.getElementById('ttBtnAdd').onclick=function(){
+      if(lang=='si'){
+         addWordWin(text,"","");
+      }else{
+         addWordWin(textTr,"","");
+      }
+   };
+
+   frame.document.getElementById('manSearch').onclick=function(){
+      var word=frame.document.getElementById('manSearchWord').value;
+      frame.document.getElementById('manSearchDef').innerHTML=gst(true,word);
+      frame.document.getElementById('manSearchWord').value=text+" - "+textTr;
+   }
+}
+manSearchWin();
