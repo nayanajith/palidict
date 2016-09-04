@@ -1,4 +1,12 @@
-var dictsObjS={
+//log with date
+function log(item){
+   var d = new Date();
+   //console.log(d);
+   //console.log(item);
+   console.log(item);
+}
+
+var dictsObjE={
 	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
 	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
 	tpe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
@@ -12,57 +20,41 @@ var dictNotSet=true;
 chrome.storage.sync.get({
    dicts: dictNotSet 
 }, function(items) {
-   console.log(items);
    if(items.dicts==true){
       chrome.storage.sync.set({
-         dicts: dictsObjS
+         dicts: dictsObjE
       }, function() {
-         console.log("Dict array initialized..");
+         log("Dict array initialized..");
       });
    }
 });
 
-console.log("Started..");
+log("Started..");
 
 var dictsObj={
+   /*
 	pbps:	["si","si",'/data/buddhadatta_data.json'],
 	msps:	["si","si",'/data/sumangala_data.json'],
 	tpe:	["en","en",'/data/tummodic.json'],
 	ype:	["en","en",'/data/yuttadhammo_ped.json'],
 	ycpe:	["en","en","/data/yuttadhammo_cped_v.json"],
 	yppn:	["en","en","/data/yuttadhammo_dppn_v.json"]
+   */
 }
 
 //Assign stored options to dictsObj array
+var dataArr=[];
 function getOptions(dicts){
    for(var d in dicts){
-      //if(typeof dictsObj[d] != undefined){delete dictsObj[d]};
-      delete dictsObj[d];
-      if(dicts[d][0]){
+      if(dicts[d][0]==true){
          var arr=[dicts[d][1],dicts[d][2],dicts[d][3],dicts[d][4]];
          dictsObj[d]=arr;
+         dataArr.push(d);
       }
    }
 }
 
-//Read the stored options
-chrome.storage.sync.get({
-	dicts: dictsObj
-}, function(items) {
-	if(items.dicts){
-		getOptions(items.dicts);
-	}
-});
-
-//throw new Error("Something went badly wrong!");
-var dataArr=[];
-for(var key in dictsObj){
-   if(typeof dictsObj[key]!= undefined ){
-      dataArr.push(key);
-   }
-}
-
-
+//Load data recursively and store as hash
 var i=0;
 function callback(resp,ele){
 	if(dictsObj[ele]){
@@ -78,8 +70,6 @@ function callback(resp,ele){
             hash[word]=def;
          }
       }
-
-		//dictsObj[ele][2]=resp;
 		dictsObj[ele][2]=hash;
 	}
    i++;
@@ -88,7 +78,7 @@ function callback(resp,ele){
    }
 }
 
-//ajax load data 
+//ajax download json data 
 function loadData(ele){
    var url=dictsObj[ele][2];
    var xhr = new XMLHttpRequest();
@@ -99,15 +89,23 @@ function loadData(ele){
          if (xhr.status == 200) {
             callback(xhr.response,ele);
          } else {
-            console.log("XHR:"+status);
+            log("XHR:"+xhr.status);
          }
       }
    }
    xhr.send(null);
 }
 
-//load all dictionary data files recursively
-loadData(dataArr[0]);
+
+//Read the stored dictionary options 
+chrome.storage.sync.get({
+   dicts: dictsObjE
+}, function(items) {
+   getOptions(items.dicts);
+   loadData(dataArr[0]);
+});
+
+
 
 //www.tipitaka.org has frames 
 var frame=window;
@@ -276,7 +274,7 @@ function addWordWin(word,def,ref){
    chrome.storage.sync.get({
       myDict: null
    }, function(items) {
-      //console.log(items);
+      //log(items);
       if(items.myDict){
          for(var k in items.myDict){
             if(items.myDict[k][0]==word){
@@ -301,7 +299,7 @@ function addWordWin(word,def,ref){
          var word=document.getElementById('ttPopWord').value;
          var ref=document.getElementById('ttPopRef').value;
          var def=document.getElementById('ttPopDef').value;
-         console.log("Added:"+word+":"+ref+":"+def);
+         log("Added:"+word+":"+ref+":"+def);
 
          //Read the stored options
          chrome.storage.sync.get({
@@ -322,13 +320,13 @@ function addWordWin(word,def,ref){
                md=[[word,def,ref]];
             }
       
-            //console.log(md);
+            //log(md);
 
             //Read the stored options
             chrome.storage.sync.set({
                myDict: md
             }, function() {
-               console.log('Saved: '+word);
+               log('Saved: '+word);
             });
          });
          rmTt();
@@ -336,7 +334,7 @@ function addWordWin(word,def,ref){
    });
 }
 
-//console.log(dictsObj);
+//log(dictsObj);
 var text="";
 var textTr="";
 var mouseIn=false;
@@ -385,7 +383,7 @@ function gst(retDef,manWord){
       chrome.storage.sync.get({
          myDict:null 
       }, function(items) {
-         //console.log(items.myDict);
+         //log(items.myDict);
          if(items.myDict){
 
             //convert array to hash
@@ -537,8 +535,8 @@ function gst(retDef,manWord){
          };
 
          //Tooltip bottom edge fix - get to tooltip to the top of the word
-         //console.log(ih+"::"+y+"::"+d.offsetHeight+"::"+yOffset+"::"+scrollHeight);
-         //console.log(scrollHeight-yOffset-y+10);
+         //log(ih+"::"+y+"::"+d.offsetHeight+"::"+yOffset+"::"+scrollHeight);
+         //log(scrollHeight-yOffset-y+10);
          if((ih-y)<d.offsetHeight){
             d.style.top = '';
             d.style.bottom = (scrollHeight-yOffset-y-10)+'px';
@@ -581,7 +579,7 @@ function manSearchWin(){
    d.style.top = '10px';
    d.style.position = 'fixed';
 
-   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='manSearchDef'></div>";
+   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'></div>";
 
 
    frame.document.scrollingElement.appendChild(d);
@@ -593,6 +591,10 @@ function manSearchWin(){
    };
 
    var ttBtnAdd=frame.document.getElementById('ttBtnAdd').onclick=function(){
+      if(text == ''){
+         text     =frame.document.getElementById('manSearchWord').value;
+         textTr   =translit(text);
+      }
       if(lang=='si'){
          addWordWin(text,"","");
       }else{
@@ -602,7 +604,7 @@ function manSearchWin(){
 
    frame.document.getElementById('manSearch').onclick=function(){
       var word=frame.document.getElementById('manSearchWord').value;
-      frame.document.getElementById('manSearchDef').innerHTML=gst(true,word);
+      frame.document.getElementById('ttDef').innerHTML=gst(true,word);
       frame.document.getElementById('manSearchWord').value=text+" - "+textTr;
    }
 }
