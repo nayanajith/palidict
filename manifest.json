@@ -2,7 +2,7 @@
    "name"         : "Pali tooltip dictionary",
    "description"  : "Pali Dictionary tooltip and user definitions",
    "options_page" : "options.html",
-   "version"      : "0.3",
+   "version"      : "0.4",
    "permissions": [
       "activeTab",
       "storage"
@@ -32,7 +32,7 @@
          "19": "icon19.png",
          "38": "icon38.png"
       },
-      "default_title": "Pali Dictionary ON"
+      "default_title": "Pali Dictionary"
    },
    "icons": { 
       "16": "icon16.png",

@@ -321,8 +321,8 @@ function addWordWin(word,def,ref){
       }
       var ttDef=frame.document.getElementById('ttDef');
       var form="<table  width='100%'>"
-         +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' id='ttPopWord'size=25 value='"+word+"'></input></td></tr>"
-         +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' id='ttPopRef' size=25 value='"+ref+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' class='ttInpt' id='ttPopWord'size=25 value='"+word+"'></input></td></tr>"
+         +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' class='ttInpt' id='ttPopRef' size=25 value='"+ref+"'></input></td></tr>"
          +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=25>"+def+"</textarea></td></tr>"
          +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
          +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
@@ -618,7 +618,7 @@ function gst(retDef,manWord){
          return defHtml;
       }else{
 
-         d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttButton' style='color:green' id='ttBtnAdd'>+</button><button class='ttButton' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
+         d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttBtn' style='color:green' id='ttBtnAdd'>+</button><button class='ttBtn' style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'>"+defHtml+"</div>";
          //frame.document.getElementsByTagName('body')[0].appendChild(d);
          frame.document.scrollingElement.appendChild(d);
          d.parentElement.style.position='relative';
@@ -683,7 +683,7 @@ function manSearchWin(){
    d.style.top = '10px';
    d.style.position = 'fixed';
 
-   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'></div>";
+   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' class='ttInpt' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'></div>";
 
 
    frame.document.scrollingElement.appendChild(d);
