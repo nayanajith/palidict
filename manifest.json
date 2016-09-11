@@ -2,7 +2,7 @@
    "name"         : "Pali tooltip dictionary",
    "description"  : "Pali Dictionary tooltip and user definitions",
    "options_page" : "options.html",
-   "version"      : "0.4",
+   "version"      : "0.6",
    "permissions": [
       "activeTab",
       "storage"

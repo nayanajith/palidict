@@ -26,7 +26,9 @@ function log(item){
 }
 
 var optsObj={
-	subwords:	[true,"Enable sub-word detection"],
+	onewords:	[false,"Find exact word"],
+	adjwords:	[false,"Find words with similar stat"],
+	subwords:	[true,"Enable sub-word detection"]
 }
 
 //Populate options if not available in store
@@ -47,10 +49,10 @@ chrome.storage.sync.get({
 var dictsObjE={
 	pbps:	[true,"si","si",'/data/buddhadatta_data.json',"Polwatte Buddhadatta himi (SI)Pali-Sinhala"],
 	msps:	[true,"si","si",'/data/sumangala_data.json',"Madithiyawela Siri Sumangala himi (SI)Pali-Sinhala"],
-	tpe:	[true,"en","en",'/data/tummodic.json',"Tummo (EN)Pali-English"],
-	ype:	[true,"en","en",'/data/yuttadhammo_ped.json',"Yuttadhammo (EN)Pali-English"],
-	ycpe:	[true,"en","en","/data/yuttadhammo_cped_v.json","Yuttadhammo Concise (EN)Pali-English"],
-	yppn:	[true,"en","en","/data/yuttadhammo_dppn_v.json","Yuttadhammo Dictionary of (EN)Pali Proper Names"]
+	tpe:	[true,"en","en",'/data/tummodic.json',"'Pali Dictionary Android app' (EN)Pali-English"],
+	ype:	[true,"en","en",'/data/yuttadhammo_ped.json',"'Tipitaka for Android app' - (EN)Pali-English"],
+	ycpe:	[true,"en","en","/data/yuttadhammo_cped_v.json","'Tipitaka for Android app' - Concise (EN)Pali-English"],
+	yppn:	[true,"en","en","/data/yuttadhammo_dppn_v.json","'Tipitaka for Android app' - Dictionary of (EN)Pali Proper Names"]
 }
 
 //Populate dictionary selection if not available in store
@@ -92,7 +94,7 @@ function getOptions(dicts){
    }
 }
 
-//Load data recursively and store as hash
+//Load data recursively and convert object in hash to fast search
 var i=0;
 function callback(resp,ele){
 	if(dictsObj[ele]){
@@ -101,6 +103,7 @@ function callback(resp,ele){
       var hash={};
       for(var k in resp){
          var word=resp[k][0].trim();
+			word = word.replace(/\.$/, '');
          var def=resp[k][1].trim();
          if(hash[word]){
             hash[word]=hash[word]+"; "+def;
@@ -343,7 +346,7 @@ function addWordWin(word,def,ref){
          +"<tr><td class='ttAddFormTd'>Word:</td><td><input type='text' class='ttInpt' id='ttPopWord'size=25 value='"+word+"'></input></td></tr>"
          +"<tr><td class='ttAddFormTd'>Reference:</td><td><input type='text' class='ttInpt' id='ttPopRef' size=25 value='"+ref+"'></input></td></tr>"
          +"<tr><td class='ttAddFormTd'>Definition:</td><td><textarea id='ttPopDef' rows=10 cols=25>"+def+"</textarea></td></tr>"
-         +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttButton' >Add</button></td></tr>"
+         +"<tr><td class='ttAddFormTd' colspan=2 align=center><button id='ttPopSave' class='ttBtn' >Add</button></td></tr>"
          +"<tr><td class='ttAddFormTd' colspan=2><div id='ttPoNotify'></div></td></tr>"
          +"</table>";
       ttDef.innerHTML=form;
@@ -388,6 +391,7 @@ function addWordWin(word,def,ref){
    });
 }
 
+//Parse long to sort to find more words
 var fixObj={ 'a':'ā', 'i':'ī', 'u':'ū' };
 
 function fixLeft(str){
@@ -510,7 +514,7 @@ function gst(retDef,manWord){
          if(optsObj['subwords'][0]==true){
             var subWord=word;
 
-            while(word.length > 0){
+            while(word.length > 2){
 
                subWord=word;
 
@@ -551,7 +555,7 @@ function gst(retDef,manWord){
             word  = right;
             var mdef='';
 
-            while(word.length > 0){
+            while(word.length > 2){
                subWord=word;
 
                if(dictsObj[k][1]=='si'){
@@ -570,7 +574,7 @@ function gst(retDef,manWord){
                }else{
                   //identify the middle word - remove starting sub-word and ending sub-word from the word
                   var mid=word;
-                  while(mid.length > 0){
+                  while(mid.length > 2){
                      mid=mid.trim();
 
                      subWord=mid;
@@ -603,20 +607,50 @@ function gst(retDef,manWord){
                }else{
                   word = word.substring(1, word.length);
                }
-
             }
-         }else{
-            if(lang == dictsObj[k][1]){
-               if(dict[text]){
-                  defAll+=dict[text]+"<br>";
-               }
-            }else{
-               if(dict[textTr]){
-                  defAll+=dict[textTr];
-               }
-            }
-         }
+			}else{
+				var word=textEn;
+				var subWord;
 
+				if(dictsObj[k][1]=='si'){
+					subWord=translit(word,true,'en');
+				}
+
+				if(dict[subWord]){
+					defAll+=dict[subWord]+"<br>";
+				}else if(optsObj['adjwords'][0]==true){
+					var def;
+					var max=2;
+					var count=0;
+					while(word.length > 2){
+						subWord=word;
+
+						if(dictsObj[k][1]=='si'){
+							subWord=translit(word,true,'en');
+						}
+
+						var re = new RegExp("^" + subWord + "*");
+						for (var key in dict){
+							if (re.test(key)){
+								def=dict[key];
+
+								if(count++ >= max || found.indexOf(key) != -1){
+									break;
+								}else{
+									defAll+="<b>["+count+"."+key+"]</b> "+def+"<br>";
+									found.push(key);
+								}
+							}
+						}
+
+						if(count >= max){
+							break;
+						}else{
+							word = word.slice(0,-1);
+						}
+					}
+				}
+			}
 
          //Resize the font when the meaning has more than 200 chars
          if(defAll.length > 200){
@@ -702,7 +736,7 @@ function manSearchWin(){
    d.style.top = '10px';
    d.style.position = 'fixed';
 
-   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' class='ttInpt' size=35></input><button id='manSearch' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd'>+</button><button style='color:red' id='ttBtnClose'>x</button></td></tr></table><div id='ttDef'></div>";
+   d.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='Type word in sinhala or english'>Word: <input type='text' id='manSearchWord' class='ttInpt' size=35></input><button id='manSearch' class='ttBtn' >Search</button></div></td><td align=right><button style='color:green' id='ttBtnAdd' class='ttBtn'>+</button><button style='color:red' id='ttBtnClose' class='ttBtn'>x</button></td></tr></table><div id='ttDef'></div>";
 
 
    frame.document.scrollingElement.appendChild(d);

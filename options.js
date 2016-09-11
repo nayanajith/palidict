@@ -79,7 +79,7 @@ function restore_options() {
          if(items.opts[d][0]){
             var checked='checked';
          }
-         innerHtml +="<label><input type='checkbox' id='"+d+"' "+checked+">"+items.opts[d][1]+"</label><br>";
+         innerHtml +="<label><input type='radio' name='mode' id='"+d+"' "+checked+">"+items.opts[d][1]+"</label><br>";
       }
 		document.getElementById('optsFieldset').innerHTML=innerHtml;
    });
