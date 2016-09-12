@@ -460,7 +460,8 @@ function gst(retDef,manWord){
 
 
    //If selection is text
-	if(text){
+	text=text.trim();
+	if(text.length > 1){
       //load local my dictionary from storage
       chrome.storage.sync.get({
          myDict:null 
@@ -480,7 +481,6 @@ function gst(retDef,manWord){
       //All text read as lower case
       text=text.toLowerCase();
       text=text.split(" ")[0];
-      text=text.trim();
 
       //Drow the tooltip element and style it
 		var d = frame.document.createElement('div');
@@ -517,7 +517,7 @@ function gst(retDef,manWord){
          if(optsObj['subwords'][0]==true){
             var subWord=word;
 
-            while(word.length > 2){
+            while(word.length > 1){
 
                subWord=word;
 
@@ -557,7 +557,7 @@ function gst(retDef,manWord){
             var mdef='';
 
 
-            while(word.length > 2){
+            while(word.length > 1){
                subWord=word;
 
                if(dictsObj[k][1]=='si'){
@@ -576,7 +576,7 @@ function gst(retDef,manWord){
                }else{
                   //identify the middle word - remove starting sub-word and ending sub-word from the word
                   var mid=word;
-                  while(mid.length > 2){
+                  while(mid.length > 1){
                      mid=mid.trim();
 
                      subWord=mid;
@@ -633,7 +633,7 @@ function gst(retDef,manWord){
 					var def;
 					var max=2;
 					var count=0;
-					while(word.length > 2){
+					while(word.length > 1){
 						subWord=word;
 
 						if(dictsObj[k][1]=='si'){
