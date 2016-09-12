@@ -392,21 +392,24 @@ function addWordWin(word,def,ref){
 }
 
 //Parse long to sort to find more words
-var fixObj={ 'a':'ā', 'i':'ī', 'u':'ū' };
+//var fixObj={ 'ā':'a', 'ī':'i', 'ū':'u','o':'a','e':'a','i':'a','u':'a' };
+var fixObj={ 'ā':'a', 'ī':'i', 'ū':'u','o':'a','e':'a'};
 
 function fixLeft(str){
+	/*
    for(w in fixObj){
-      if(str[0]==fixObj[w]){
-         str=str.replace(RegExp('^'+fixObj[w]),w);
+      if(str[0]==w){
+         str=str.replace(RegExp('^'+w),fixObj[w]);
       }
    }
+	*/
    return str;
 }
 
 function fixRight(str){
    for(w in fixObj){
-      if(str[str.length-1]==fixObj[w]){
-         str=str.replace(RegExp(fixObj[w]+'$'),w);
+      if(str[str.length-1]==w){
+         str=str.replace(RegExp(w+'$'),fixObj[w]);
       }
    }
    return str;
@@ -543,17 +546,16 @@ function gst(retDef,manWord){
 
             //Identify the ending sub-word - reduce from left to right -->
             def='';
+
+				//Remove one letter less from left word to get the vowel
+				word = word.slice(0,-1);
             var r = RegExp(word);
 
-            right = text.replace(r,"");
-
-            //textTr if lang is not equal to dict language
-            if(lang!=dictsObj[k][1]){
-               right = textTr.replace(r,"");
-            }
+            right = textEn.replace(r,"");
 
             word  = right;
             var mdef='';
+
 
             while(word.length > 2){
                subWord=word;
@@ -589,7 +591,15 @@ function gst(retDef,manWord){
                            defAll+="<b>[⇢ "+subWord+" ⇠]</b> "+mdef+"<br>";
                            mdef='';
                            found.push(subWord);
+
+									
                         }
+
+								//Replace matching word to reduce words
+								mid = mid.slice(0,-1);
+								var r = RegExp(mid);
+								word = word.replace(r,"");
+
                         break;
                      }else{
                         var fixW=fixRight(mid);
@@ -606,6 +616,7 @@ function gst(retDef,manWord){
                   word=fixW;
                }else{
                   word = word.substring(1, word.length);
+                  //word = word.slice(0,-1);
                }
             }
 			}else{
