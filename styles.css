@@ -32,7 +32,19 @@
    color: orangered;
 }
 .c2{
-   color: orangered;
+   color: olivedrab;
+}
+[class="0"]{
+   color: mediumvioletred;
+}
+[class="2"]{
+   color: mediumslateblue;
+}
+[class="4"]{
+   color: royalblue;
+}
+[class="5"]{
+   color: mediumvioletred;
 }
 .ttTraEn{
    overflow-y: auto;

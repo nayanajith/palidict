@@ -27,8 +27,8 @@ function log(item){
 
 var optsObj={
 	onewords:	[false,"Find exact word"],
-	adjwords:	[false,"Find words with similar stat"],
-	subwords:	[true,"Enable sub-word detection"]
+	adjwords:	[true,"Find words with similar start"],
+	subwords:	[false,"Enable sub-word detection"]
 }
 
 //Populate options if not available in store
