@@ -46,12 +46,18 @@
 [class="5"]{
    color: mediumvioletred;
 }
+
+#ttDef{
+    pointer-events: none;
+}
+
 .ttTraEn{
    overflow-y: auto;
    max-height:150px;
    border-left:3px solid #AED6F1;
    border-bottom:1px solid #999;
    border-right:1px solid whitesmoke;
+   pointer-events: none;
    font-size:12px;
    margin-bottom:4px;
    text-align: justify;
@@ -64,14 +70,17 @@
    margin-bottom:4px;
    border-left:3px solid #ABEBC6;
    border-right:1px solid whitesmoke;
+   pointer-events: none;
    border-bottom:1px solid #999;
    text-align: justify;
    font-family:UN-Abhaya,KaputaUnicode,"Noto Sans Sinhala",Tipitaka_Sinhala1,"Iskoola Pota";
 }
+
 .ttTraWord{
    color:#874d08;
    font-weight: bold;
 }
+
 .ttBtn{
    padding:0 4px 0 4px;
    margin-left:2px;
