@@ -417,18 +417,16 @@ function fixRight(str){
 
 // Make the DIV element draggable:
 
-function dragElement(elmnt) {
+function dragElement(elmnt,header) {
 
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    if (frame.document.getElementById(elmnt.id+'header')) {
+    if (header){
         // if present, the header is where you move the DIV from:
-        frame.document.getElementById(elmnt.id+'header').onmousedown = dragMouseDown;
+        header.onmousedown = dragMouseDown;
     } else {
         // otherwise, move the DIV from anywhere inside the DIV:
         elmnt.onmousedown = dragMouseDown;
     }
-
-
 
     function dragMouseDown(e) {
         e = e || window.event;
@@ -727,11 +725,18 @@ function gst(retDef,manWord){
         if(retDef){
             return defHtml;
         }else{
+            var tttheader = frame.document.createElement('div');
+            d.appendChild(tttheader)
+            tttheader.id='tttheader';
 
+            tttheader.innerHTML="<table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttBtn' style='color:green' title='Add' id='ttBtnAdd'>+</button><button class='ttBtn' title='Close' style='color:red' id='ttBtnClose'>x</button></td></tr></table>";
+            var defElement = frame.document.createElement('div');
+            defElement.id='ttDef'
+            defElement.innerHTML=defHtml
+            d.appendChild(tttheader)
+            d.appendChild(defElement)
 
-            d.innerHTML="<div id='tttheader'><table width='100%' style='border-bottom:1px solid silver'><tr><td><div class='ttTraWord' title='"+concat.join()+"'>"+text+" ⇠⇢ "+textTr+"</div></td><td align=right><button class='ttBtn' style='color:green' title='Add' id='ttBtnAdd'>+</button><button class='ttBtn' title='Close' style='color:red' id='ttBtnClose'>x</button></td></tr></table></div><div id='ttDef'>"+defHtml+"</div>";
-
-            dragElement(d);
+            dragElement(d,tttheader);
 
             //frame.document.getElementsByTagName('body')[0].appendChild(d);
             frame.document.scrollingElement.appendChild(d);
