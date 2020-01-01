@@ -483,7 +483,7 @@ function gst(retDef,manWord){
         x=iw-ttWidth-40;
     }
 
-    var yTop=y+10+yOffset;
+    var yTop=y+15+yOffset;
 
     text = "";
     if(manWord){
@@ -762,7 +762,7 @@ function gst(retDef,manWord){
             //log(scrollHeight-yOffset-y+10);
             if((ih-y)<d.offsetHeight){
                 d.style.top = '';
-                d.style.bottom = (scrollHeight-yOffset-y-10)+'px';
+                d.style.bottom = (scrollHeight-yOffset-y+10)+'px';
             }
         }
     }
