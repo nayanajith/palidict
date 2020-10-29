@@ -1,4 +1,4 @@
-Gudelines
+Guidelines
 =========
 If there are no exact match found for a given word, word will be reduced from 
 left and right to identify any sub-words
